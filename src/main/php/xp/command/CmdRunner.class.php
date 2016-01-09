@@ -14,6 +14,7 @@ use util\FilesystemPropertySource;
 use util\ResourcePropertySource;
 use rdbms\ConnectionManager;
 use lang\XPClass;
+use xp\runtime\Help;
 
 /**
  * Runs util.cmd.Command subclasses on the command line.
@@ -79,59 +80,64 @@ class CmdRunner {
   /**
    * Show usage
    *
-   * @param   lang.XPClass class
+   * @param  lang.XPClass $class
+   * @return void
    */
   public static function showUsage(XPClass $class) {
-
-    // Description
-    if (null !== ($comment= $class->getComment())) {
-      self::$err->writeLine(self::textOf($comment));
-      self::$err->writeLine(str_repeat('=', 72));
-    }
-
     $extra= $details= $positional= [];
     foreach ($class->getMethods() as $method) {
       if (!$method->hasAnnotation('arg')) continue;
 
       $arg= $method->getAnnotation('arg');
-      $name= strtolower(preg_replace('/^set/', '', $method->getName()));;
-      $comment= self::textOf($method->getComment());
-
-      if (0 == $method->numParameters()) {
-        $optional= true;
-      } else {
-        list($first, )= $method->getParameters();
-        $optional= $first->isOptional();
-      }
+      $name= strtolower(preg_replace('/^set/', '', $method->getName()));
+      $optional= 0 === $method->numParameters() || $method->getParameters()[0]->isOptional();
+      $comment= $method->getComment();
 
       if (isset($arg['position'])) {
-        $details['#'.($arg['position'] + 1)]= $comment;
+        $details[$name]= [$comment, null];
         $positional[$arg['position']]= $name;
       } else if (isset($arg['name'])) {
-        $details['--'.$arg['name'].' | -'.(isset($arg['short']) ? $arg['short'] : $arg['name']{0})]= $comment;
+        $details['--'.$arg['name']]= [$comment, isset($arg['short']) ? $arg['short'] : $arg['name']{0}];
         $extra[$arg['name']]= $optional;
       } else {
-        $details['--'.$name.' | -'.(isset($arg['short']) ? $arg['short'] : $name{0})]= $comment;
+        $details['--'.$name]= [$comment, isset($arg['short']) ? $arg['short'] : $name{0}];
         $extra[$name]= $optional;
       }
     }
 
+    list($headline, $text)= explode("\n", $class->getComment(), 2);
+    $markdown= '# '.trim($headline, '# ')."\n\n";
+
     // Usage
     asort($positional);
-    self::$err->write('Usage: $ xp cmd ', $class->getName(), ' ');
+    $markdown.= "- Usage\n  ```sh\n$ xp cmd ".$class->getName();
     foreach ($positional as $name) {
-      self::$err->write('<', $name, '> ');
+      $markdown.= ' '.$name;
     }
     foreach ($extra as $name => $optional) {
-      self::$err->write(($optional ? '[' : ''), '--', $name, ($optional ? '] ' : ' '));
+      $markdown.= ' '.(($optional ? '[' : '').'--'.$name.($optional ? '] ' : ' '));
     }
-    self::$err->writeLine();
+    $markdown.= "\n  ```\n";
 
     // Argument details
-    self::$err->writeLine('Arguments:');
-    foreach ($details as $which => $comment) {
-      self::$err->writeLine('* ', $which, "\n  ", str_replace("\n", "\n  ", $comment), "\n");
+    foreach ($details as $which => $detail) {
+      $markdown.= sprintf(
+        "  **%s**: %s%s\n\n",
+        $which,
+        str_replace("\n", "\n  ", $detail[0]),
+        $detail[1] ? ' *(also: -'.$detail[1].')*' : ''
+      );
     }
+
+    if ('' === $text) {
+      // Nothing to do
+    } else if ("\n" === $text{0}) {
+      $markdown.= substr($text, 1);
+    } else {
+      $markdown.= $text;
+    }
+
+    Help::render(self::$err, $markdown, $class->getClassLoader());
   }
 
   /**
@@ -430,11 +436,10 @@ class CmdRunner {
     }
 
     try {
-      $instance->run();
+      return (int)$instance->run();
     } catch (\lang\Throwable $t) {
       self::$err->writeLine('*** ', $t->toString());
       return 70;    // EX_SOFTWARE according to sysexits.h
     }
-    return 0;
   }
 }
