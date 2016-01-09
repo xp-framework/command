@@ -255,7 +255,7 @@ class CmdRunner {
       if ('' === (string)$comment) {
         $markdown= '# '.$class->getSimpleName()."\n\n".self::usageOf($class);
       } else {
-        list($headline, $text)= explode("\n", $comment, 2);
+        @list($headline, $text)= explode("\n", $comment, 2);
         $markdown= '# '.ltrim($headline, ' #')."\n\n".self::usageOf($class).$text;
       }
 
