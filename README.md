@@ -72,7 +72,7 @@ To execute the class, use the `xpcli` runner:
 
 ```sh
 $ xpcli -cp /path/to/rdbms/src/main/php Query 'mysql://localhost/test' 'select * from account'
-@ rdbms.mysqlx.MySqlxConnection(->rdbms.DSN@(mysql://localhost/test), rdbms.mysqlx.MySqlxProtocol(resource(type= stream, id= 66), P@0))
+@ rdbms.mysqlx.MySqlxConnection(->rdbms.DSN@(mysql://localhost/test), rdbms.mysqlx.MySqlxProtocol(...)
 >>> select * from account
 <<< Results
 [
