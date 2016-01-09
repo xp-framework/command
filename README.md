@@ -87,7 +87,7 @@ $ xpcli -cp /path/to/rdbms/src/main/php Query 'mysql://localhost/test' 'select *
 ]
 ```
 
-To show a usage, supply `-?` or `--help`. This will display a usage:
+To show the command's usage, supply `-?` or `--help`:
 
 ```sh
 $ xpcli -cp ../rdbms/src/main/php Query -?
