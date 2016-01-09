@@ -28,7 +28,7 @@ class Query extends \util\cmd\Command {
   /**
    * Set dsn (e.g. mysql://user:pass@host[:port][/database])
    *
-   * @param   string dsn
+   * @param  string $dsn
    */
   #[@arg(position= 0)]
   public function setConnection($dsn) {
@@ -40,7 +40,7 @@ class Query extends \util\cmd\Command {
   /**
    * Set SQL query
    *
-   * @param   string query
+   * @param  string $query
    */
   #[@arg(position= 1)]
   public function setQuery($query) {
