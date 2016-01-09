@@ -20,8 +20,6 @@ use xp\runtime\Help;
  * Runs util.cmd.Command subclasses on the command line.
  * ========================================================================
  *
- * {{usage}}
- *
  * - Run a command class from the classpath
  *   ```sh
  *   $ xp cmd com.example.Query
@@ -57,7 +55,6 @@ class CmdRunner {
     $verbose= false;
 
   const DEFAULT_CONFIG_PATH = 'etc';
-  const USAGE_PLACEHOLDER = '[Usage][]';
 
   static function __static() {
     self::$in= new StringReader(new ConsoleInputStream(STDIN));
@@ -251,15 +248,15 @@ class CmdRunner {
 
     // Usage
     if ($classparams->exists('help', '?')) {
-      $text= $class->getComment();
-
-      if ('' === (string)$text) {
-        $text= '# '.$class->getSimpleName()."\n\n".self::usageOf($class);
-      } else if (false !== ($p= stripos($text, self::USAGE_PLACEHOLDER))) {
-        $text= substr($text, 0, $p).self::usageOf($class).substr($text, $p + strlen(self::USAGE_PLACEHOLDER));
+      $comment= $class->getComment();
+      if ('' === (string)$comment) {
+        $markdown= '# '.$class->getSimpleName()."\n\n".self::usageOf($class);
+      } else {
+        list($headline, $text)= explode("\n", $comment, 2);
+        $markdown= '# '.ltrim($headline, ' #')."\n\n".self::usageOf($class).$text;
       }
 
-      Help::render(self::$err, $text, $class->getClassLoader());
+      Help::render(self::$err, $markdown, $class->getClassLoader());
       return 0;
     }
 
