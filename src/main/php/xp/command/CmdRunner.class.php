@@ -1,6 +1,7 @@
 <?php namespace xp\command;
 
 use util\cmd\ParamString;
+use io\File;
 use io\streams\InputStream;
 use io\streams\OutputStream;
 use io\streams\StringReader;
@@ -10,10 +11,17 @@ use io\streams\ConsoleOutputStream;
 use util\log\Logger;
 use util\log\context\EnvironmentAware;
 use util\PropertyManager;
+use util\PropertyAccess;
+use util\Properties;
 use util\FilesystemPropertySource;
 use util\ResourcePropertySource;
 use rdbms\ConnectionManager;
 use lang\XPClass;
+use lang\System;
+use lang\ClassLoader;
+use lang\ClassNotFoundException;
+use lang\reflect\TargetInvocationException;
+use lang\Throwable;
 use xp\runtime\Help;
 
 /**
@@ -218,26 +226,21 @@ class CmdRunner {
     $classparams= new ParamString(array_slice($params->list, $offset+ 1));
 
     // Class file or class name
-    if (strstr($classname, \xp::CLASS_FILE_EXT)) {
-      $file= new \io\File($classname);
-      if (!$file->exists()) {
-        self::$err->writeLine('*** Cannot load class from non-existant file ', $classname);
-        return 1;
-      }
+    try {
+      if (strstr($classname, \xp::CLASS_FILE_EXT)) {
+        $file= new File($classname);
+        if (!$file->exists()) {
+          self::$err->writeLine('*** Cannot load class from non-existant file ', $classname);
+          return 1;
+        }
 
-      try {
-        $class= \lang\ClassLoader::getDefault()->loadUri($file->getURI());
-      } catch (\lang\ClassNotFoundException $e) {
-        self::$err->writeLine('*** ', $this->verbose ? $e : $e->getMessage());
-        return 1;
+        $class= ClassLoader::getDefault()->loadUri($file->getURI());
+      } else {
+        $class= ClassLoader::getDefault()->loadClass($classname);
       }
-    } else {
-      try {
-        $class= \lang\XPClass::forName($classname);
-      } catch (\lang\ClassNotFoundException $e) {
-        self::$err->writeLine('*** ', $this->verbose ? $e : $e->getMessage());
-        return 1;
-      }
+    } catch (ClassNotFoundException $e) {
+      self::$err->writeLine('*** ', $this->verbose ? $e : $e->getMessage());
+      return 1;
     }
     
     // Check whether class is runnable
@@ -272,7 +275,7 @@ class CmdRunner {
     // Setup logger context for all registered log categories
     foreach (Logger::getInstance()->getCategories() as $category) {
       if (null === ($context= $category->getContext()) || !($context instanceof EnvironmentAware)) continue;
-      $context->setHostname(\lang\System::getProperty('host.name'));
+      $context->setHostname(System::getProperty('host.name'));
       $context->setRunner(nameof($this));
       $context->setInstance($class->getName());
       $context->setResource(null);
@@ -309,20 +312,16 @@ class CmdRunner {
 
             // If a PropertyAccess is retrieved which is not a util.Properties,
             // then, for BC sake, convert it into a util.Properties
-            if (
-              $p instanceof \util\PropertyAccess &&
-              !$p instanceof \util\Properties
-            ) {
-              $convert= \util\Properties::fromString('');
-
+            if ($p instanceof PropertyAccess && !$p instanceof Properties) {
+              $convert= Properties::fromString('');
               $section= $p->getFirstSection();
+
               while ($section) {
                 // HACK: Properties::writeSection() would first attempts to
                 // read the whole file, we cannot make use of it.
                 $convert->_data[$section]= $p->readSection($section);
                 $section= $p->getNextSection();
               }
-
               $args= [$convert];
             } else {
               $args= [$p];
@@ -342,10 +341,10 @@ class CmdRunner {
         }
 
         $method->invoke($instance, $args);
-      } catch (\lang\reflect\TargetInvocationException $e) {
+      } catch (TargetInvocationException $e) {
         self::$err->writeLine('*** Error injecting '.$type.' '.$inject['name'].': '.$e->getCause()->compoundMessage());
         return 2;
-      } catch (\lang\Throwable $e) {
+      } catch (Throwable $e) {
         self::$err->writeLine('*** Error injecting '.$type.' '.$inject['name'].': '.$e->compoundMessage());
         return 2;
       }
@@ -376,7 +375,7 @@ class CmdRunner {
         }
         try {
           $method->invoke($instance, [$pass]);
-        } catch (\lang\Throwable $e) {
+        } catch (Throwable $e) {
           self::$err->writeLine('*** Error for arguments '.$begin.'..'.$end.': ', $this->verbose ? $e : $e->getMessage());
           return 2;
         }
@@ -411,7 +410,7 @@ class CmdRunner {
 
         try {
           $method->invoke($instance, $args);
-        } catch (\lang\reflect\TargetInvocationException $e) {
+        } catch (TargetInvocationException $e) {
           self::$err->writeLine('*** Error for argument '.$name.': ', $this->verbose ? $e->getCause() : $e->getCause()->compoundMessage());
           return 2;
         }
@@ -420,7 +419,7 @@ class CmdRunner {
 
     try {
       return (int)$instance->run();
-    } catch (\lang\Throwable $t) {
+    } catch (Throwable $t) {
       self::$err->writeLine('*** ', $t->toString());
       return 70;    // EX_SOFTWARE according to sysexits.h
     }
