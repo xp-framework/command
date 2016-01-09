@@ -20,6 +20,8 @@ use xp\runtime\Help;
  * Runs util.cmd.Command subclasses on the command line.
  * ========================================================================
  *
+ * {{usage}}
+ *
  * - Run a command class from the classpath
  *   ```sh
  *   $ xp cmd com.example.Query
@@ -55,7 +57,8 @@ class CmdRunner {
     $verbose= false;
 
   const DEFAULT_CONFIG_PATH = 'etc';
-  
+  const USAGE_PLACEHOLDER = '[Usage][]';
+
   static function __static() {
     self::$in= new StringReader(new ConsoleInputStream(STDIN));
     self::$out= new StringWriter(new ConsoleOutputStream(STDOUT));
@@ -63,27 +66,14 @@ class CmdRunner {
   }
 
   /**
-   * Converts api-doc markdown to plain text w/ ASCII "art"
-   *
-   * @param   string markup
-   * @return  string text
-   */
-  protected static function textOf($markup) {
-    $line= str_repeat('=', 72);
-    return strip_tags(preg_replace(
-      ['#```([a-z]*)#', '#```#', '#^\- #'],
-      [$line, $line, '* '],
-      trim($markup)
-    ));
-  }
-  
-  /**
-   * Show usage
+   * Creates usage as markdown
    *
    * @param  lang.XPClass $class
-   * @return void
+   * @return string
    */
-  public static function showUsage(XPClass $class) {
+  private static function usageOf(XPClass $class) {
+    $markdown= "- Usage\n  ```sh\n$ xp cmd ".$class->getName();
+
     $extra= $details= $positional= [];
     foreach ($class->getMethods() as $method) {
       if (!$method->hasAnnotation('arg')) continue;
@@ -105,12 +95,8 @@ class CmdRunner {
       }
     }
 
-    list($headline, $text)= explode("\n", $class->getComment(), 2);
-    $markdown= '# '.trim($headline, '# ')."\n\n";
-
     // Usage
     asort($positional);
-    $markdown.= "- Usage\n  ```sh\n$ xp cmd ".$class->getName();
     foreach ($positional as $name) {
       $markdown.= ' '.$name;
     }
@@ -129,15 +115,7 @@ class CmdRunner {
       );
     }
 
-    if ('' === $text) {
-      // Nothing to do
-    } else if ("\n" === $text{0}) {
-      $markdown.= substr($text, 1);
-    } else {
-      $markdown.= $text;
-    }
-
-    Help::render(self::$err, $markdown, $class->getClassLoader());
+    return substr($markdown, 0, -1);
   }
 
   /**
@@ -273,7 +251,15 @@ class CmdRunner {
 
     // Usage
     if ($classparams->exists('help', '?')) {
-      self::showUsage($class);
+      $text= $class->getComment();
+
+      if ('' === (string)$text) {
+        $text= '# '.$class->getSimpleName()."\n\n".self::usageOf($class);
+      } else if (false !== ($p= stripos($text, self::USAGE_PLACEHOLDER))) {
+        $text= substr($text, 0, $p).self::usageOf($class).substr($text, $p + strlen(self::USAGE_PLACEHOLDER));
+      }
+
+      Help::render(self::$err, $text, $class->getClassLoader());
       return 0;
     }
 
