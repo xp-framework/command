@@ -737,4 +737,23 @@ key=overwritten_value'
     $this->assertEquals('', $this->err->getBytes());
     $this->assertEquals('Have overwritten_value', $this->out->getBytes());
   }
+
+  #[@test]
+  public function class_with_create() {
+    $command= newinstance(Command::class, [], '{
+      private $created= "constructor";
+
+      public static function newInstance() {
+        $self= new self();
+        $self->created= "user-supplied creation method";
+        return $self;
+      }
+
+      public function run() {
+        $this->out->write("Created via ", $this->created);
+      }
+    }');
+    $this->runWith([nameof($command)]);
+    $this->assertEquals('Created via user-supplied creation method', $this->out->getBytes());
+  }
 }
