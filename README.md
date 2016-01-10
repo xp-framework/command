@@ -79,10 +79,10 @@ class Query extends \util\cmd\Command {
 }
 ```
 
-To execute the class, use the `xpcli` runner:
+To execute the class, use the `cmd` command:
 
 ```sh
-$ xpcli -cp /path/to/rdbms/src/main/php Query 'mysql://localhost/test' 'select * from account' -v
+$ xp -m /path/to/rdbms cmd Query 'mysql://localhost/test' 'select * from account' -v
 @ rdbms.mysqlx.MySqlxConnection(->rdbms.DSN@(mysql://localhost/test), rdbms.mysqlx.MySqlxProtocol(...)
 >>> select * from account
 <<< Results
