@@ -90,16 +90,18 @@ $ xpcli -cp /path/to/rdbms/src/main/php Query 'mysql://localhost/test' 'select *
 To show the command's usage, supply `-?` or `--help`:
 
 ```sh
-$ xpcli -cp ../rdbms/src/main/php Query -?
+$ xp cmd Query -?
+@FileSystemCL<.>
 Performs an SQL query
-========================================================================
-Usage: $ xpcli Query <connection> <query>
-Arguments:
-* #1
-  Set dsn (e.g. mysql://user:pass@host[:port][/database])
+════════════════════════════════════════════════════════════════════════
 
-* #2
-  Set SQL query
+> Usage
+
+  $ xp cmd Query connection query
+
+  connection: Connection DSN, e.g. mysql://user:pass@host[:port][/database]
+
+  query: SQL query. Use - to read from standard input.
 ```
 
 See also
