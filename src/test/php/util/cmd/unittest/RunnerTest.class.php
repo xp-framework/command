@@ -733,8 +733,27 @@ key=overwritten_value'
         // Not reached
       }
     }');
-    $this->runWith(['-c', 'res://net/xp_framework/unittest/util/cmd/add_etc', '-c', 'res://net/xp_framework/unittest/util/cmd/', nameof($command)]);
+    $this->runWith(['-c', 'res://util/cmd/unittest/add_etc', '-c', 'res://util/cmd/unittest/', nameof($command)]);
     $this->assertEquals('', $this->err->getBytes());
     $this->assertEquals('Have overwritten_value', $this->out->getBytes());
+  }
+
+  #[@test]
+  public function class_with_create() {
+    $command= newinstance(Command::class, [], '{
+      private $created= "constructor";
+
+      public static function newInstance() {
+        $self= new self();
+        $self->created= "user-supplied creation method";
+        return $self;
+      }
+
+      public function run() {
+        $this->out->write("Created via ", $this->created);
+      }
+    }');
+    $this->runWith([nameof($command)]);
+    $this->assertEquals('Created via user-supplied creation method', $this->out->getBytes());
   }
 }

@@ -300,7 +300,11 @@ class Runner {
       $context->setParams($params->string);
     }
 
-    $instance= $class->newInstance();
+    if ($class->hasMethod('newInstance')) {
+      $instance= $class->getMethod('newInstance')->invoke(null, []);
+    } else {
+      $instance= $class->newInstance();
+    }
     $instance->in= self::$in;
     $instance->out= self::$out;
     $instance->err= self::$err;
