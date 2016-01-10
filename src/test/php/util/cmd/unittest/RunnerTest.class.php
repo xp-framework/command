@@ -733,7 +733,7 @@ key=overwritten_value'
         // Not reached
       }
     }');
-    $this->runWith(['-c', 'res://net/xp_framework/unittest/util/cmd/add_etc', '-c', 'res://net/xp_framework/unittest/util/cmd/', nameof($command)]);
+    $this->runWith(['-c', 'res://util/cmd/unittest/add_etc', '-c', 'res://util/cmd/unittest/', nameof($command)]);
     $this->assertEquals('', $this->err->getBytes());
     $this->assertEquals('Have overwritten_value', $this->out->getBytes());
   }
