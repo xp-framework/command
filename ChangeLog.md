@@ -6,6 +6,9 @@ Commands ChangeLog
 ## 6.10.0 / 2016-01-10
 
 * **Heads up: Bumped minimum XP version required to XP 6.10.0** - @thekid
+* Merged PR #2: Make command instantiation overrideable. Declare a static
+  `newInstance()` method and return an instance of your command from it.
+  (@thekid)
 * Merged PR #1: Integrate into xp command infrastructure. See the XP
   RFC for this, xp-framework/rfc#303
   (@thekid)
