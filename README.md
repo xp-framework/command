@@ -24,23 +24,23 @@ use io\streams\Streams;
  */
 class Query extends \util\cmd\Command {
   private $connection, $query;
+  private $verbose= false;
 
   /**
-   * Set dsn (e.g. mysql://user:pass@host[:port][/database])
+   * Connection DSN, e.g. `mysql://user:pass@host[:port][/database]`
    *
-   * @param  string $dsn
+   * @param   string dsn
    */
   #[@arg(position= 0)]
   public function setConnection($dsn) {
     $this->connection= DriverManager::getConnection($dsn);
     $this->connection->connect();
-    $this->out->writeLine('@ ', $this->connection);
   }
 
   /**
-   * Set SQL query
+   * SQL query. Use `-` to read from standard input.
    *
-   * @param  string $query
+   * @param   string query
    */
   #[@arg(position= 1)]
   public function setQuery($query) {
@@ -51,19 +51,30 @@ class Query extends \util\cmd\Command {
     }
   }
 
+  /**
+   * Verbose output
+   */
+  #[@arg]
+  public function setVerbose() {
+    $this->verbose= true;
+  }
+
   /** @return int */
   public function run() {
-    $this->out->writeLine('>>> ', $this->query);
-    $result= $this->connection->query($this->query);
+    $this->verbose && $this->out->writeLine('@ ', $this->connection);
+    $this->verbose && $this->out->writeLine('>>> ', $this->query);
+
+    $result= $this->connection->open($this->query);
     if ($result instanceof ResultSet) {
-      $this->out->writeLine('<<< Results');
-      foreach ($result as $record) {
+      $this->verbose && $this->out->writeLine('<<< Results');
+      foreach ($result as $found => $record) {
         $this->out->writeLine($record);
       }
+      return isset($found) ? 0 : 2;
     } else {
-      $this->out->writeLine('<<< ', $result);
+      $this->verbose && $this->out->writeLine('<<< ', $result);
+      return $result ? 0 : 1;
     }
-    return 0;
   }
 }
 ```
@@ -89,20 +100,7 @@ $ xpcli -cp /path/to/rdbms/src/main/php Query 'mysql://localhost/test' 'select *
 
 To show the command's usage, supply `-?` or `--help`:
 
-```sh
-$ xp cmd Query -?
-@FileSystemCL<.>
-Performs an SQL query
-════════════════════════════════════════════════════════════════════════
-
-> Usage
-
-  $ xp cmd Query connection query
-
-  connection: Connection DSN, e.g. mysql://user:pass@host[:port][/database]
-
-  query: SQL query. Use - to read from standard input.
-```
+![query-class-usage](https://cloud.githubusercontent.com/assets/696742/12219325/375b43ba-b73f-11e5-9588-d7a122668e3d.png)
 
 See also
 --------
