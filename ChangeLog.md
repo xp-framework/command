@@ -3,6 +3,13 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 6.10.0 / 2016-01-10
+
+* **Heads up: Bumped minimum XP version required to XP 6.10.0** - @thekid
+* Merged PR #1: Integrate into xp command infrastructure. See the XP
+  RFC for this, xp-framework/rfc#303
+  (@thekid)
+
 ## 6.9.2 / 2016-01-09
 
 * Implemented xp-framework/rfc#307: Extract XPCLI from core - @thekid
