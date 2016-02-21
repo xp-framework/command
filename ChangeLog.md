@@ -3,6 +3,10 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 7.0.0 / 2016-02-21
+
+* Added version compatibility with XP 7 - @thekid
+
 ## 6.10.0 / 2016-01-10
 
 * **Heads up: Bumped minimum XP version required to XP 6.10.0** - @thekid

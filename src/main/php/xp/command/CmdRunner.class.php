@@ -175,7 +175,27 @@ class CmdRunner {
     self::$err= new StringWriter($err);
     return $err;
   }
-  
+
+  private function findCommand($cl, $name, $package) {
+    $file= $name.\xp::CLASS_FILE_EXT;
+    foreach ($cl->packageContents($package) as $resource) {
+      if ($file === $resource) {
+        return ($package ? $package.'.' : '').'.'.$name;
+      } else if ('/' === $resource{strlen($resource) - 1}) {
+        if ($uri= $this->findCommand($cl, $name, ($package ? $package.'.' : '').substr($resource, 0, -1))) return $uri;
+      }
+    }
+    return null;
+  }
+
+  private function findClass($name) {
+    $class= implode('', array_map('ucfirst', explode('-', $name)));
+    foreach (ClassLoader::getLoaders() as $cl) {
+      if ($command= $this->findCommand($cl, $class, null)) return $cl->loadClass($command);
+    }
+    throw new ClassNotFoundException($class);
+  }
+
   /**
    * Main method
    *
@@ -226,21 +246,24 @@ class CmdRunner {
     $classparams= new ParamString(array_slice($params->list, $offset+ 1));
 
     // Class file or class name
-    try {
-      if (strstr($classname, \xp::CLASS_FILE_EXT)) {
-        $file= new File($classname);
-        if (!$file->exists()) {
-          self::$err->writeLine('*** Cannot load class from non-existant file ', $classname);
-          return 1;
-        }
-
-        $class= ClassLoader::getDefault()->loadUri($file->getURI());
-      } else {
-        $class= ClassLoader::getDefault()->loadClass($classname);
+    $cl= ClassLoader::getDefault();
+    if (strstr($classname, \xp::CLASS_FILE_EXT)) {
+      $file= new File($classname);
+      if (!$file->exists()) {
+        self::$err->writeLine('*** Cannot load class from non-existant file ', $classname);
+        return 1;
       }
-    } catch (ClassNotFoundException $e) {
-      self::$err->writeLine('*** ', $this->verbose ? $e : $e->getMessage());
-      return 1;
+
+      $class= $cl->loadUri($file->getURI());
+    } else if ($cl->providesClass($classname)) {
+      $class= $cl->loadClass($classname);
+    } else {
+      try {
+        $class= $this->findClass($classname);
+      } catch (ClassNotFoundException $e) {
+        self::$err->writeLine('*** ', $this->verbose ? $e : $e->getMessage());
+        return 1;
+      }
     }
     
     // Check whether class is runnable
