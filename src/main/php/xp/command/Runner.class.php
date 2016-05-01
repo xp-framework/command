@@ -126,11 +126,10 @@ class Runner extends AbstractRunner {
   /**
    * Displays usage
    *
-   * @return  int exitcode
+   * @return void
    */
   protected function selfUsage() {
     self::$err->writeLine($this->textOf((new XPClass(__CLASS__))->getComment()));
-    return 1;
   }
   
   /**

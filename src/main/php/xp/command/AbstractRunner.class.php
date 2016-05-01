@@ -29,14 +29,12 @@ use xp\runtime\Help;
  * Command runner base class
  */
 abstract class AbstractRunner {
-  protected static
-    $in     = null,
-    $out    = null,
-    $err    = null;
-
-  protected $verbose = false;
-  
   const DEFAULT_CONFIG_PATH = 'etc';
+
+  protected static $in;
+  protected static $out;
+  protected static $err;
+  protected $verbose = false;
 
   static function __static() {
     self::$in= new StringReader(new ConsoleInputStream(STDIN));
@@ -45,16 +43,16 @@ abstract class AbstractRunner {
   }
 
   /**
-   * Displays usage
+   * Displays usage of command
    *
    * @return void
    */
   protected abstract function commandUsage(XPClass $class);
 
   /**
-   * Displays usage
+   * Displays usage of runner
    *
-   * @return int exitcode
+   * @return void
    */
   protected abstract function selfUsage();
 
