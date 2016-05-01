@@ -141,13 +141,13 @@ class Runner extends AbstractRunner {
    */
   protected function listCommands() {
     $commandsIn= function($package) {
-      $markdown= '';
+      $text= '';
       foreach ($package->getClasses() as $class) {
         if ($class->isSubclassOf('util.cmd.Command') && !Modifiers::isAbstract($class->getModifiers())) {
-          $markdown.= '  $ xpcli '.$class->getSimpleName()."\n";
+          $text.= '  $ xpcli '.$class->getSimpleName()."\n";
         }
       }
-      return $markdown ?: '  (no commands)';
+      return $text ?: '  (no commands)';
     };
 
     self::$err->writeLine('Named commands');
