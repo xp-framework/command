@@ -1,15 +1,15 @@
 <?php namespace util\cmd\unittest;
 
-use xp\command\Runner;
+use xp\command\CmdRunner;
 use util\cmd\Command;
+use util\cmd\Config;
 use util\cmd\ParamString;
 use util\log\Logger;
-use util\PropertyManager;
 use io\streams\MemoryInputStream;
 use io\streams\MemoryOutputStream;
 new import('lang.ResourceProvider');
 
-class RunnerTest extends \unittest\TestCase {
+class CmdRunnerTest extends \unittest\TestCase {
   private
     $runner = null,
     $in     = null,
@@ -18,33 +18,23 @@ class RunnerTest extends \unittest\TestCase {
 
   /** @return void */
   public function setUp() {
-    $this->runner= new Runner();
+    $this->runner= new CmdRunner();
   }
   
   /**
    * Run with given args
    *
-   * @param   string[] args
-   * @param   string in
-   * @param   util.PropertySource[] propertySources default []
-   * @return  int
+   * @param  string[] $args
+   * @param  string $in
+   * @param  util.cmd.Config $config
+   * @return int
    */
-  private function runWith(array $args, $in= '', $propertySources= []) {
-    $pm= PropertyManager::getInstance();
-    $sources= $pm->getSources();
-    $pm->setSources($propertySources);
-
+  private function runWith(array $args, $in= '', $config= null) {
     $this->in= $this->runner->setIn(new MemoryInputStream($in));
     $this->out= $this->runner->setOut(new MemoryOutputStream());
     $this->err= $this->runner->setErr(new MemoryOutputStream());
-    try {
-      $res= $this->runner->run(new ParamString($args));
-      $pm->setSources($sources);
-      return $res;
-    } catch (\lang\Throwable $t) {
-      $pm->setSources($sources);
-      throw $t;
-    }
+
+    return $this->runner->run(new ParamString($args), $config);
   }
 
   /**
@@ -89,15 +79,15 @@ class RunnerTest extends \unittest\TestCase {
   public function selfUsage() {
     $return= $this->runWith([]);
     $this->assertEquals(1, $return);
-    $this->assertOnStream($this->err, 'Usage:');
+    $this->assertOnStream($this->err, 'xp cmd [class]');
     $this->assertEquals('', $this->out->getBytes());
   }
 
   #[@test]
   public function nonExistantClass() {
-    $return= $this->runWith(['@@NON-EXISTANT@@']);
+    $return= $this->runWith(['@@NONEXISTANT@@']);
     $this->assertEquals(1, $return);
-    $this->assertOnStream($this->err, '*** Class "@@NON-EXISTANT@@" could not be found');
+    $this->assertOnStream($this->err, '*** Class "@@NONEXISTANT@@" could not be found');
     $this->assertEquals('', $this->out->getBytes());
   }
 
@@ -122,7 +112,7 @@ class RunnerTest extends \unittest\TestCase {
     $command= $this->newCommand();
     $return= $this->runWith([nameof($command), '-?']);
     $this->assertEquals(0, $return);
-    $this->assertOnStream($this->err, 'Usage: $ xpcli '.nameof($command));
+    $this->assertOnStream($this->err, '$ xp cmd '.nameof($command));
     $this->assertEquals('', $this->out->getBytes());
     $this->assertFalse($command->wasRun());
   }
@@ -132,7 +122,7 @@ class RunnerTest extends \unittest\TestCase {
     $command= $this->newCommand();
     $return= $this->runWith([nameof($command), '--help']);
     $this->assertEquals(0, $return);
-    $this->assertOnStream($this->err, 'Usage: $ xpcli '.nameof($command));
+    $this->assertOnStream($this->err, '$ xp cmd '.nameof($command));
     $this->assertEquals('', $this->out->getBytes());
     $this->assertFalse($command->wasRun());
   }
@@ -522,30 +512,6 @@ class RunnerTest extends \unittest\TestCase {
   }
 
   #[@test]
-  public function classPathOption() {
-    $command= newinstance(Command::class, [], '{
-      private $copy= NULL;
-      
-      #[@arg(short= "cp")]
-      public function setCopy($copy) { 
-        $this->copy= \lang\reflect\Package::forName("net.xp_forge.instructions")->loadClass($copy); 
-      }
-      
-      public function run() { 
-        $this->out->write($this->copy); 
-      }
-    }');
-    $return= $this->runWith([
-      '-cp', $this->getClass()->getPackage()->getResourceAsStream('instructions.xar')->getURI(), 
-      nameof($command),
-      '-cp', 'Copy'
-    ]);
-    $this->assertEquals(0, $return);
-    $this->assertEquals('', $this->err->getBytes());
-    $this->assertEquals('lang.XPClass<net.xp_forge.instructions.Copy>', $this->out->getBytes());
-  }
-
-  #[@test]
   public function unknownInjectionType() {
     $command= newinstance(Command::class, [], '{
       #[@inject(type= "io.Folder", name= "output")]
@@ -711,11 +677,10 @@ class RunnerTest extends \unittest\TestCase {
         // Intentionally empty
       }
     }');
-    $this->runWith([nameof($command)], '', [new \util\RegisteredPropertySource('debug', \util\Properties::fromString('[section]
-key=overwritten_value'
-      )),
+    $this->runWith([nameof($command)], '', new Config(
+      new \util\RegisteredPropertySource('debug', \util\Properties::fromString("[section]\nkey=overwritten_value")),
       new \util\FilesystemPropertySource(__DIR__)
-    ]);
+    ));
     $this->assertEquals('', $this->err->getBytes());
     $this->assertEquals('Have overwritten_value', $this->out->getBytes());
   }
@@ -755,5 +720,41 @@ key=overwritten_value'
     }');
     $this->runWith([nameof($command)]);
     $this->assertEquals('Created via user-supplied creation method', $this->out->getBytes());
+  }
+
+  #[@test]
+  public function config_passed_to_constructor() {
+    $command= newinstance(Command::class, [], '{
+      private $config= null;
+
+      public function __construct($config= null) {
+        $this->config= $config;
+      }
+
+      public function run() {
+        $this->out->write("Created with ", $this->config);
+      }
+    }');
+    $this->runWith([nameof($command)]);
+    $this->assertOnStream($this->out, 'Created with util.cmd.Config');
+  }
+
+  #[@test]
+  public function config_passed_to_create() {
+    $command= newinstance(Command::class, [], '{
+      private $config= null;
+
+      public static function newInstance($config) {
+        $self= new self();
+        $self->config= $config;
+        return $self;
+      }
+
+      public function run() {
+        $this->out->write("Created with ", $this->config);
+      }
+    }');
+    $this->runWith([nameof($command)]);
+    $this->assertOnStream($this->out, 'Created with util.cmd.Config');
   }
 }

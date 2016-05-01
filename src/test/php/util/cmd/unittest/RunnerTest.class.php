@@ -2,6 +2,7 @@
 
 use xp\command\Runner;
 use util\cmd\Command;
+use util\cmd\Config;
 use util\cmd\ParamString;
 use util\log\Logger;
 use util\PropertyManager;
@@ -24,27 +25,17 @@ class RunnerTest extends \unittest\TestCase {
   /**
    * Run with given args
    *
-   * @param   string[] args
-   * @param   string in
-   * @param   util.PropertySource[] propertySources default []
-   * @return  int
+   * @param  string[] $args
+   * @param  string $in
+   * @param  util.cmd.Config $config
+   * @return int
    */
-  private function runWith(array $args, $in= '', $propertySources= []) {
-    $pm= PropertyManager::getInstance();
-    $sources= $pm->getSources();
-    $pm->setSources($propertySources);
-
+  private function runWith(array $args, $in= '', $config= null) {
     $this->in= $this->runner->setIn(new MemoryInputStream($in));
     $this->out= $this->runner->setOut(new MemoryOutputStream());
     $this->err= $this->runner->setErr(new MemoryOutputStream());
-    try {
-      $res= $this->runner->run(new ParamString($args));
-      $pm->setSources($sources);
-      return $res;
-    } catch (\lang\Throwable $t) {
-      $pm->setSources($sources);
-      throw $t;
-    }
+
+    return $this->runner->run(new ParamString($args), $config);
   }
 
   /**
@@ -711,11 +702,10 @@ class RunnerTest extends \unittest\TestCase {
         // Intentionally empty
       }
     }');
-    $this->runWith([nameof($command)], '', [new \util\RegisteredPropertySource('debug', \util\Properties::fromString('[section]
-key=overwritten_value'
-      )),
+    $this->runWith([nameof($command)], '', new Config(
+      new \util\RegisteredPropertySource('debug', \util\Properties::fromString("[section]\nkey=overwritten_value")),
       new \util\FilesystemPropertySource(__DIR__)
-    ]);
+    ));
     $this->assertEquals('', $this->err->getBytes());
     $this->assertEquals('Have overwritten_value', $this->out->getBytes());
   }

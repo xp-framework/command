@@ -200,16 +200,17 @@ class CmdRunner {
   /**
    * Main method
    *
-   * @param   util.cmd.ParamString params
-   * @return  int
+   * @param  util.cmd.ParamString $params
+   * @param  util.cmd.Config $config
+   * @return int
    */
-  public function run(ParamString $params) {
+  public function run(ParamString $params, Config $config= null) {
 
     // No arguments given - show our own usage
     if ($params->count < 1) return self::usage();
 
     // Configure properties
-    $config= new Config();
+    $config || $config= new Config();
 
     // Separate runner options from class options
     for ($offset= 0, $i= 0; $i < $params->count; $i++) switch ($params->list[$i]) {
@@ -232,7 +233,7 @@ class CmdRunner {
       self::$err->writeLine('*** Missing classname');
       return 1;
     }
-    
+
     // Use default path for config if no sources set
     if ($config->isEmpty()) {
       $config->append(is_dir(self::DEFAULT_CONFIG_PATH) ? self::DEFAULT_CONFIG_PATH : '.');
@@ -287,7 +288,6 @@ class CmdRunner {
     $pm= PropertyManager::getInstance();
     $pm->setSources($config->sources());
 
-    // Load, instantiate and initialize
     $l= Logger::getInstance();
     $pm->hasProperties('log') && $l->configure($pm->getProperties('log'));
 
@@ -308,8 +308,10 @@ class CmdRunner {
 
     if ($class->hasMethod('newInstance')) {
       $instance= $class->getMethod('newInstance')->invoke(null, [$config]);
-    } else {
+    } else if ($class->hasConstructor()) {
       $instance= $class->newInstance($config);
+    } else {
+      $instance= $class->newInstance();
     }
     $instance->in= self::$in;
     $instance->out= self::$out;

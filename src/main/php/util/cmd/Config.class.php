@@ -1,5 +1,6 @@
 <?php namespace util\cmd;
 
+use util\PropertySource;
 use util\FilesystemPropertySource;
 use util\ResourcePropertySource;
 use util\CompositeProperties;
@@ -19,7 +20,7 @@ class Config {
   /**
    * Creates a new config instance from given sources
    *
-   * @param  string... $source
+   * @param  (string|util.PropertySource)... $source
    */
   public function __construct() {
     foreach (func_get_args() as $source) {
@@ -30,11 +31,13 @@ class Config {
   /**
    * Appends property source
    *
-   * @param  string $source
+   * @param  string|util.PropertySource $source
    * @return void
    */
   public function append($source) {
-    if (is_dir($source)) {
+    if ($source instanceof PropertySource) {
+      $this->sources[]= $source;
+    } else if (is_dir($source)) {
       $this->sources[]= new FilesystemPropertySource($source);
     } else if (0 === strncmp('res://', $source, 6)) {
       $this->sources[]= new ResourcePropertySource(substr($source, 6));
