@@ -1,6 +1,5 @@
 <?php namespace util\cmd;
 
-use lang\XPClass;
 use lang\ClassLoader;
 use lang\IllegalArgumentException;
 
@@ -23,7 +22,12 @@ final class Commands {
   }
 
   /**
-   * 
+   * Loads a named command
+   *
+   * @param  lang.CLassLoader $cl
+   * @param  string $name
+   * @return lang.XPClass
+   * @throws lang.IllegalArgumentException if no class can be found by the given name
    */
   private static function loadNamed($cl, $name) {
     $class= implode('', array_map('ucfirst', explode('-', $name)));
