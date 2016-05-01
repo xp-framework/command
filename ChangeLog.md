@@ -3,6 +3,10 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 7.1.0 / ????-??-??
+
+* Merged PR #4: Pass configuration to command constructor - @thekid
+
 ## 7.0.0 / 2016-02-21
 
 * **Adopted semantic versioning. See xp-framework/rfc#300** - @thekid 
