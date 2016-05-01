@@ -3,6 +3,10 @@
 use lang\ClassLoader;
 use lang\IllegalArgumentException;
 
+/**
+ * Commands factory. Loads classes, files and named commands by using
+ * a package-based search.
+ */
 final class Commands {
   private static $packages= [];
 
@@ -24,7 +28,7 @@ final class Commands {
   /**
    * Loads a named command
    *
-   * @param  lang.CLassLoader $cl
+   * @param  lang.ClassLoader $cl
    * @param  string $name
    * @return lang.XPClass
    * @throws lang.IllegalArgumentException if no class can be found by the given name
