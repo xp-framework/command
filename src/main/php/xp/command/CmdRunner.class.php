@@ -1,6 +1,7 @@
 <?php namespace xp\command;
 
 use util\cmd\ParamString;
+use util\cmd\Config;
 use io\File;
 use io\streams\InputStream;
 use io\streams\OutputStream;
@@ -208,16 +209,12 @@ class CmdRunner {
     if ($params->count < 1) return self::usage();
 
     // Configure properties
-    $pm= PropertyManager::getInstance();
+    $config= new Config();
 
     // Separate runner options from class options
     for ($offset= 0, $i= 0; $i < $params->count; $i++) switch ($params->list[$i]) {
       case '-c':
-        if (0 == strncmp('res://', $params->list[$i+ 1], 6)) {
-          $pm->appendSource(new ResourcePropertySource(substr($params->list[$i+ 1], 6)));
-        } else {
-          $pm->appendSource(new FilesystemPropertySource($params->list[$i+ 1]));
-        }
+        $config->append($params->list[$i+ 1]);
         $offset+= 2; $i++;
         break;
       case '-v':
@@ -236,9 +233,9 @@ class CmdRunner {
       return 1;
     }
     
-    // Use default path for PropertyManager if no sources set
-    if (!$pm->getSources()) {
-      $pm->configure(self::DEFAULT_CONFIG_PATH);
+    // Use default path for config if no sources set
+    if ($config->isEmpty()) {
+      $config->append(is_dir(self::DEFAULT_CONFIG_PATH) ? self::DEFAULT_CONFIG_PATH : '.');
     }
 
     unset($params->list[-1]);
@@ -286,6 +283,10 @@ class CmdRunner {
       return 0;
     }
 
+    // BC: PropertyManager, Logger, ConnectionManager instances
+    $pm= PropertyManager::getInstance();
+    $pm->setSources($config->sources());
+
     // Load, instantiate and initialize
     $l= Logger::getInstance();
     $pm->hasProperties('log') && $l->configure($pm->getProperties('log'));
@@ -306,9 +307,9 @@ class CmdRunner {
     }
 
     if ($class->hasMethod('newInstance')) {
-      $instance= $class->getMethod('newInstance')->invoke(null, []);
+      $instance= $class->getMethod('newInstance')->invoke(null, [$config]);
     } else {
-      $instance= $class->newInstance();
+      $instance= $class->newInstance($config);
     }
     $instance->in= self::$in;
     $instance->out= self::$out;
