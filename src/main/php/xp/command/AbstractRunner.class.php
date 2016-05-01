@@ -47,9 +47,16 @@ abstract class AbstractRunner {
   /**
    * Displays usage
    *
+   * @return void
+   */
+  protected abstract function commandUsage(XPClass $class);
+
+  /**
+   * Displays usage
+   *
    * @return int exitcode
    */
-  protected abstract function usage();
+  protected abstract function selfUsage();
 
   /**
    * Main method
@@ -112,7 +119,7 @@ abstract class AbstractRunner {
 
     // Usage
     if ($params->exists('help', '?')) {
-      $this->showUsage($class);
+      $this->commandUsage($class);
       return 0;
     }
 

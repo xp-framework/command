@@ -67,9 +67,10 @@ class Runner extends AbstractRunner {
   /**
    * Show usage
    *
-   * @param   lang.XPClass class
+   * @param  lang.XPClass class
+   * @return void
    */
-  protected function showUsage(XPClass $class) {
+  protected function commandUsage(XPClass $class) {
 
     // Description
     if (null !== ($comment= $class->getComment())) {
@@ -127,7 +128,7 @@ class Runner extends AbstractRunner {
    *
    * @return  int exitcode
    */
-  protected function usage() {
+  protected function selfUsage() {
     self::$err->writeLine($this->textOf((new XPClass(__CLASS__))->getComment()));
     return 1;
   }
@@ -141,7 +142,10 @@ class Runner extends AbstractRunner {
   public function run(ParamString $params, Config $config= null) {
 
     // No arguments given - show our own usage
-    if ($params->count < 1) return self::usage();
+    if ($params->count < 1) {
+      $this->selfUsage();
+      return 1;
+    }
 
     // Configure properties
     $config || $config= new Config();

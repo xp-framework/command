@@ -5,7 +5,7 @@ use util\cmd\Command;
 
 class RunnerTest extends AbstractRunnerTest {
 
-  /** @return var */
+  /** @return xp.command.AbstractRunner */
   protected function runner() { return new Runner(); }
 
   #[@test]

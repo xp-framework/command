@@ -4,7 +4,7 @@ use xp\command\CmdRunner;
 
 class CmdRunnerTest extends AbstractRunnerTest {
 
-  /** @return var */
+  /** @return xp.command.AbstractRunner */
   protected function runner() { return new CmdRunner(); }
 
   #[@test]

@@ -54,9 +54,9 @@ class CmdRunner extends AbstractRunner {
    * Shows usage
    *
    * @param  lang.XPClass $class
-   * @return int
+   * @return void
    */
-  protected function showUsage(XPClass $class) {
+  protected function commandUsage(XPClass $class) {
     $comment= $class->getComment();
     if ('' === (string)$comment) {
       $markdown= '# '.$class->getSimpleName()."\n\n";
@@ -117,7 +117,7 @@ class CmdRunner extends AbstractRunner {
    *
    * @return  int exitcode
    */
-  protected function usage() {
+  protected function selfUsage() {
     self::$err->writeLine('Runs commands: `xp cmd [class]`. xp help cmd has the details!');
     return 1;
   }
@@ -152,7 +152,10 @@ class CmdRunner extends AbstractRunner {
   public function run(ParamString $params, Config $config= null) {
 
     // No arguments given - show our own usage
-    if ($params->count < 1) return $this->usage();
+    if ($params->count < 1) {
+      $this->selfUsage();
+      return 1;
+    }
 
     // Configure properties
     $config || $config= new Config();
