@@ -79,13 +79,13 @@ abstract class AbstractRunner {
    * Reassigns standard input stream
    *
    * @param   io.streams.InputStream in
-   * @return  io.streams.InputStream the given output stream
+   * @return  io.streams.InputStream the given input stream
    */
   public function setIn(InputStream $in) {
     self::$in= new StringReader($in);
     return $in;
   }
-  
+
   /**
    * Reassigns standard output stream
    *
