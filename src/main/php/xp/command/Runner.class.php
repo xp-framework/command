@@ -2,12 +2,6 @@
 
 use util\cmd\ParamString;
 use util\cmd\Config;
-use io\streams\InputStream;
-use io\streams\OutputStream;
-use io\streams\StringReader;
-use io\streams\StringWriter;
-use io\streams\ConsoleInputStream;
-use io\streams\ConsoleOutputStream;
 use util\log\Logger;
 use util\log\context\EnvironmentAware;
 use util\PropertyManager;
@@ -51,22 +45,9 @@ use lang\XPClass;
  * @test  xp://net.xp_framework.unittest.util.cmd.RunnerTest
  * @see   xp://util.cmd.Command
  */
-class Runner {
-  private static
-    $in     = null,
-    $out    = null,
-    $err    = null;
+class Runner extends AbstractRunner {
   
-  private
-    $verbose= false;
-
-  const DEFAULT_CONFIG_PATH = 'etc';
-  
-  static function __static() {
-    self::$in= new StringReader(new ConsoleInputStream(STDIN));
-    self::$out= new StringWriter(new ConsoleOutputStream(STDOUT));
-    self::$err= new StringWriter(new ConsoleOutputStream(STDERR));
-  }
+  static function __static() { }
 
   /**
    * Converts api-doc markdown to plain text w/ ASCII "art"
@@ -88,7 +69,7 @@ class Runner {
    *
    * @param   lang.XPClass class
    */
-  public static function showUsage(XPClass $class) {
+  protected function showUsage(XPClass $class) {
 
     // Description
     if (null !== ($comment= $class->getComment())) {
@@ -142,16 +123,6 @@ class Runner {
   }
 
   /**
-   * Main method
-   *
-   * @param   string[] args
-   * @return  int
-   */
-  public static function main(array $args) {
-    return (new self())->run(new ParamString($args));
-  }
-
-  /**
    * Displays usage
    *
    * @return  int exitcode
@@ -159,39 +130,6 @@ class Runner {
   protected function usage() {
     self::$err->writeLine($this->textOf((new XPClass(__CLASS__))->getComment()));
     return 1;
-  }
-
-  /**
-   * Reassigns standard input stream
-   *
-   * @param   io.streams.InputStream in
-   * @return  io.streams.InputStream the given output stream
-   */
-  public function setIn(InputStream $in) {
-    self::$in= new StringReader($in);
-    return $in;
-  }
-  
-  /**
-   * Reassigns standard output stream
-   *
-   * @param   io.streams.OutputStream out
-   * @return  io.streams.OutputStream the given output stream
-   */
-  public function setOut(OutputStream $out) {
-    self::$out= new StringWriter($out);
-    return $out;
-  }
-
-  /**
-   * Reassigns standard error stream
-   *
-   * @param   io.streams.OutputStream error
-   * @return  io.streams.OutputStream the given output stream
-   */
-  public function setErr(OutputStream $err) {
-    self::$err= new StringWriter($err);
-    return $err;
   }
   
   /**
@@ -265,192 +203,7 @@ class Runner {
         return 1;
       }
     }
-    
-    // Check whether class is runnable
-    if (!$class->isSubclassOf('lang.Runnable')) {
-      self::$err->writeLine('*** ', $class->getName(), ' is not runnable');
-      return 1;
-    }
 
-    // Usage
-    if ($classparams->exists('help', '?')) {
-      self::showUsage($class);
-      return 0;
-    }
-
-    // BC: PropertyManager, Logger, ConnectionManager instances
-    $pm= PropertyManager::getInstance();
-    $pm->setSources($config->sources());
-
-    $l= Logger::getInstance();
-    $pm->hasProperties('log') && $l->configure($pm->getProperties('log'));
-
-    if (class_exists('rdbms\DBConnection')) {   // FIXME: Job of XPInjector?
-      $cm= ConnectionManager::getInstance();
-      $pm->hasProperties('database') && $cm->configure($pm->getProperties('database'));
-    }
-
-    // Setup logger context for all registered log categories
-    foreach (Logger::getInstance()->getCategories() as $category) {
-      if (null === ($context= $category->getContext()) || !($context instanceof EnvironmentAware)) continue;
-      $context->setHostname(\lang\System::getProperty('host.name'));
-      $context->setRunner(nameof($this));
-      $context->setInstance($class->getName());
-      $context->setResource(null);
-      $context->setParams($params->string);
-    }
-
-    if ($class->hasMethod('newInstance')) {
-      $instance= $class->getMethod('newInstance')->invoke(null, [$config]);
-    } else if ($class->hasConstructor()) {
-      $instance= $class->newInstance($config);
-    } else {
-      $instance= $class->newInstance();
-    }
-    $instance->in= self::$in;
-    $instance->out= self::$out;
-    $instance->err= self::$err;
-    $methods= $class->getMethods();
-
-    // Injection
-    foreach ($methods as $method) {
-      if (!$method->hasAnnotation('inject')) continue;
-
-      $inject= $method->getAnnotation('inject');
-      if (isset($inject['type'])) {
-        $type= $inject['type'];
-      } else if ($restriction= $method->getParameter(0)->getTypeRestriction()) {
-        $type= $restriction->getName();
-      } else {
-        $type= $method->getParameter(0)->getType()->getName();
-      }
-      try {
-        switch ($type) {
-          case 'rdbms.DBConnection': {
-            $args= [$cm->getByHost($inject['name'], 0)];
-            break;
-          }
-
-          case 'util.Properties': {
-            $p= $pm->getProperties($inject['name']);
-
-            // If a PropertyAccess is retrieved which is not a util.Properties,
-            // then, for BC sake, convert it into a util.Properties
-            if (
-              $p instanceof \util\PropertyAccess &&
-              !$p instanceof \util\Properties
-            ) {
-              $convert= \util\Properties::fromString('');
-
-              $section= $p->getFirstSection();
-              while ($section) {
-                // HACK: Properties::writeSection() would first attempts to
-                // read the whole file, we cannot make use of it.
-                $convert->_data[$section]= $p->readSection($section);
-                $section= $p->getNextSection();
-              }
-
-              $args= [$convert];
-            } else {
-              $args= [$p];
-            }
-            break;
-          }
-
-          case 'util.log.LogCategory': {
-            $args= [$l->getCategory($inject['name'])];
-            break;
-          }
-
-          default: {
-            self::$err->writeLine('*** Unknown injection type "'.$type.'" at method "'.$method->getName().'"');
-            return 2;
-          }
-        }
-
-        $method->invoke($instance, $args);
-      } catch (\lang\reflect\TargetInvocationException $e) {
-        self::$err->writeLine('*** Error injecting '.$type.' '.$inject['name'].': '.$e->getCause()->compoundMessage());
-        return 2;
-      } catch (\lang\Throwable $e) {
-        self::$err->writeLine('*** Error injecting '.$type.' '.$inject['name'].': '.$e->compoundMessage());
-        return 2;
-      }
-    }
-    
-    // Arguments
-    foreach ($methods as $method) {
-      if ($method->hasAnnotation('args')) { // Pass all arguments
-        if (!$method->hasAnnotation('args', 'select')) {
-          $begin= 0;
-          $end= $classparams->count;
-          $pass= array_slice($classparams->list, 0, $end);
-        } else {
-          $pass= [];
-          foreach (preg_split('/, ?/', $method->getAnnotation('args', 'select')) as $def) {
-            if (is_numeric($def) || '-' == $def{0}) {
-              $pass[]= $classparams->value((int)$def);
-            } else {
-              sscanf($def, '[%d..%d]', $begin, $end);
-              isset($begin) || $begin= 0;
-              isset($end) || $end= $classparams->count- 1;
-
-              while ($begin <= $end) {
-                $pass[]= $classparams->value($begin++);
-              }
-            }
-          }
-        }
-        try {
-          $method->invoke($instance, [$pass]);
-        } catch (\lang\Throwable $e) {
-          self::$err->writeLine('*** Error for arguments '.$begin.'..'.$end.': ', $this->verbose ? $e : $e->getMessage());
-          return 2;
-        }
-      } else if ($method->hasAnnotation('arg')) {  // Pass arguments
-        $arg= $method->getAnnotation('arg');
-        if (isset($arg['position'])) {
-          $name= '#'.($arg['position']+ 1);
-          $select= intval($arg['position']);
-          $short= null;
-        } else if (isset($arg['name'])) {
-          $name= $select= $arg['name'];
-          $short= isset($arg['short']) ? $arg['short'] : null;
-        } else {
-          $name= $select= strtolower(preg_replace('/^set/', '', $method->getName()));
-          $short= isset($arg['short']) ? $arg['short'] : null;
-        }
-
-        if (0 == $method->numParameters()) {
-          if (!$classparams->exists($select, $short)) continue;
-          $args= [];
-        } else if (!$classparams->exists($select, $short)) {
-          list($first, )= $method->getParameters();
-          if (!$first->isOptional()) {
-            self::$err->writeLine('*** Argument '.$name.' does not exist!');
-            return 2;
-          }
-
-          $args= [];
-        } else {
-          $args= [$classparams->value($select, $short)];
-        }
-
-        try {
-          $method->invoke($instance, $args);
-        } catch (\lang\reflect\TargetInvocationException $e) {
-          self::$err->writeLine('*** Error for argument '.$name.': ', $this->verbose ? $e->getCause() : $e->getCause()->compoundMessage());
-          return 2;
-        }
-      }
-    }
-
-    try {
-      $instance->run();
-    } catch (\lang\Throwable $t) {
-      self::$err->writeLine('*** ', $t->toString());
-      return 70;    // EX_SOFTWARE according to sysexits.h
-    }
-    return 0;
+    return $this->runClass($class, $classparams, $config);
   }
 }
