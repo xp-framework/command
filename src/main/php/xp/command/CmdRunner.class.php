@@ -169,8 +169,7 @@ class CmdRunner extends AbstractRunner {
     }
 
     unset($params->list[-1]);
-    $classname= $params->value($offset);
     $classparams= new ParamString(array_slice($params->list, $offset+ 1));
-    return $this->runClass($classname, $classparams, $config);
+    return $this->runCommand($params->value($offset), $classparams, $config);
   }
 }

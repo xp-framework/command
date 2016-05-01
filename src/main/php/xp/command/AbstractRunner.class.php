@@ -111,16 +111,14 @@ abstract class AbstractRunner {
   /**
    * Runs class
    *
-   * @param  string $name
+   * @param  string $command
    * @param  util.cmd.ParamString $params
    * @param  util.cmd.Config $config
    * @return int
    */
-  protected function runClass($name, $params, $config) {
-
-    // Class file or class name
+  protected function runCommand($command, $params, $config) {
     try {
-      $class= Commands::named($name);
+      $class= Commands::named($command);
     } catch (Throwable $e) {
       self::$err->writeLine('*** ', $this->verbose ? $e : $e->getMessage());
       return 1;
