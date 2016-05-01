@@ -2,7 +2,7 @@
 
 use util\cmd\ParamString;
 use util\cmd\Config;
-use io\File;
+use util\cmd\Commands;
 use util\log\Logger;
 use util\log\context\EnvironmentAware;
 use util\PropertyManager;
@@ -14,6 +14,8 @@ use lang\System;
 use lang\ClassLoader;
 use lang\ClassNotFoundException;
 use lang\reflect\TargetInvocationException;
+use lang\reflect\Modifiers;
+use lang\reflect\Package;
 use lang\Throwable;
 use xp\runtime\Help;
 
@@ -33,6 +35,10 @@ use xp\runtime\Help;
  *   ```sh
  *   $ xp cmd Query.class.php
  *   ```
+ * - Lists named commands
+ *   ```sh
+ *   $ xp cmd -l
+ *   ```
  * - Pass configuration directories other than `./etc`:
  *   ```sh
  *   $ xp cmd -c etc/default -c etc/prod com.example.Query
@@ -43,7 +49,7 @@ use xp\runtime\Help;
  *
  * Pass `-v` to see more verbose output from argument handling.
  *
- * @test  xp://net.xp_framework.unittest.util.cmd.RunnerTest
+ * @test  xp://util.cmd.unittest.CmdRunnerTest
  * @see   xp://util.cmd.Command
  */
 class CmdRunner extends AbstractRunner {
@@ -123,6 +129,37 @@ class CmdRunner extends AbstractRunner {
   }
 
   /**
+   * Lists commands
+   *
+   * @return void
+   */
+  protected function listCommands() {
+    $commandsIn= function($package) {
+      $markdown= '';
+      foreach ($package->getClasses() as $class) {
+        if ($class->isSubclassOf('util.cmd.Command') && !Modifiers::isAbstract($class->getModifiers())) {
+          $markdown.= '  $ xp cmd '.$class->getSimpleName()."\n";
+        }
+      }
+      return $markdown ?: '  *(no commands)*';
+    };
+
+    $markdown= "# Named commands\n\n";
+
+    if ($packages= Commands::allPackages()) {
+      foreach ($packages as $package) {
+        $markdown.= '* In package **'.$package->getName()."**\n\n".$commandsIn($package);
+      }
+      $markdown.= "\n";
+    }
+
+    $markdown.= "* In global package\n\n";
+    $markdown.= $commandsIn(Package::forName(null));
+
+    Help::render(self::$err, $markdown, []);
+  }
+
+  /**
    * Main method
    *
    * @param  util.cmd.ParamString $params
@@ -152,6 +189,9 @@ class CmdRunner extends AbstractRunner {
         break;
       case '-?':
         $this->selfUsage();
+        return 1;
+      case '-l':
+        $this->listCommands();
         return 1;
       default:
         break 2;

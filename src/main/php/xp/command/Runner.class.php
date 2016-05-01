@@ -2,10 +2,12 @@
 
 use util\cmd\ParamString;
 use util\cmd\Config;
+use util\cmd\Commands;
 use lang\XPClass;
 use lang\ClassLoader;
 use lang\ClassNotFoundException;
-use io\File;
+use lang\reflect\Modifiers;
+use lang\reflect\Package;
 
 /**
  * Runs util.cmd.Command subclasses on the command line.
@@ -33,13 +35,16 @@ use io\File;
  *
  * -?:
  *   Shows this help text.
+ *
+ * -l:
+ *   Lists named commands
  * ```
  *
  * If the class options contain `-?`, the help text supplied via the
  * class' api documentation is shown. All other class options are
  * dependant on the class.
  *
- * @test  xp://net.xp_framework.unittest.util.cmd.RunnerTest
+ * @test  xp://util.cmd.unittest.RunnerTest
  * @see   xp://util.cmd.Command
  */
 class Runner extends AbstractRunner {
@@ -128,6 +133,37 @@ class Runner extends AbstractRunner {
   protected function selfUsage() {
     self::$err->writeLine($this->textOf((new XPClass(__CLASS__))->getComment()));
   }
+
+  /**
+   * Lists commands
+   *
+   * @return void
+   */
+  protected function listCommands() {
+    $commandsIn= function($package) {
+      $markdown= '';
+      foreach ($package->getClasses() as $class) {
+        if ($class->isSubclassOf('util.cmd.Command') && !Modifiers::isAbstract($class->getModifiers())) {
+          $markdown.= '  $ xpcli '.$class->getSimpleName()."\n";
+        }
+      }
+      return $markdown ?: '  (no commands)';
+    };
+
+    self::$err->writeLine('Named commands');
+    self::$err->writeLine();
+
+    if ($packages= Commands::allPackages()) {
+      foreach (Commands::allPackages() as $package) {
+        self::$err->writeLine('* ', $package);
+        self::$err->writeLine($commandsIn($package));
+      }
+      self::$err->writeLine();
+    }
+
+    self::$err->writeLine('* Global package');
+    self::$err->writeLine($commandsIn(Package::forName(null)));
+  }
   
   /**
    * Main method
@@ -162,6 +198,9 @@ class Runner extends AbstractRunner {
         break;
       case '-?':
         $this->selfUsage();
+        return 1;
+      case '-l':
+        $this->listCommands();
         return 1;
       default:
         break 2;

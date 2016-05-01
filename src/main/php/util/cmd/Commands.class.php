@@ -2,6 +2,7 @@
 
 use lang\ClassLoader;
 use lang\IllegalArgumentException;
+use lang\reflect\Package;
 
 /**
  * Commands factory. Loads classes, files and named commands by using
@@ -22,21 +23,29 @@ final class Commands {
    * @return void
    */
   public static function registerPackage($package) {
-    self::$packages[]= $package;
+    self::$packages[]= Package::forName($package);
+  }
+
+  /**
+   * Gets all registered packages
+   *
+   * @return lang.reflect.Package[]
+   */
+  public static function allPackages() {
+    return self::$packages;
   }
 
   /**
    * Loads a named command
    *
-   * @param  lang.ClassLoader $cl
    * @param  string $name
    * @return lang.XPClass
    * @throws lang.IllegalArgumentException if no class can be found by the given name
    */
-  private static function loadNamed($cl, $name) {
+  private static function loadNamed($name) {
     $class= implode('', array_map('ucfirst', explode('-', $name)));
     foreach (self::$packages as $package) {
-      if ($cl->providesClass($qualified= $package.'.'.$class)) return $cl->loadClass($qualified);
+      if ($package->providesClass($class)) return $package->loadClass($qualified);
     }
     throw new IllegalArgumentException('No command named "'.$name.'"');
   }
@@ -56,7 +65,7 @@ final class Commands {
     } else if (strstr($name, '.')) {
       $class= $cl->loadClass($name);
     } else {
-      $class= self::loadNamed($cl, $name);
+      $class= self::loadNamed($name);
     }
 
     // Check whether class is runnable
