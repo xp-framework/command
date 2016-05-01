@@ -8,9 +8,9 @@ class RunnerTest extends AbstractRunnerTest {
   /** @return xp.command.AbstractRunner */
   protected function runner() { return new Runner(); }
 
-  #[@test]
-  public function selfUsage() {
-    $return= $this->runWith([]);
+  #[@test, @values([[[]], [['-?']]])]
+  public function selfUsage($args) {
+    $return= $this->runWith($args);
     $this->assertEquals(1, $return);
     $this->assertOnStream($this->err, '$ xpcli [options]');
     $this->assertEquals('', $this->out->getBytes());
