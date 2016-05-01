@@ -5,7 +5,7 @@ use lang\ClassLoader;
 use lang\IllegalArgumentException;
 
 final class Commands {
-  private static $named= [];
+  private static $packages= [];
 
   /**
    * Prevent instantiation
@@ -15,11 +15,22 @@ final class Commands {
   /**
    * Register named commands
    *
-   * @param  [:string] $named Map of names => classes
+   * @param  string $package
    * @return void
    */
-  public static function register(array $named) {
-    self::$named= array_merge(self::$named, $named);
+  public static function registerPackage($package) {
+    self::$packages[]= $package;
+  }
+
+  /**
+   * 
+   */
+  private static function loadNamed($cl, $name) {
+    $class= implode('', array_map('ucfirst', explode('-', $name)));
+    foreach (self::$packages as $package) {
+      if ($cl->providesClass($qualified= $package.'.'.$class)) return $cl->loadClass($qualified);
+    }
+    throw new IllegalArgumentException('No command named "'.$name.'"');
   }
 
   /**
@@ -31,12 +42,13 @@ final class Commands {
    * @throws lang.IllegalArgumentException if class is not runnable
    */
   public static function named($name) {
-    if (isset(self::$named[$name])) {
-      $class= XPClass::forName(self::$named[$name]);
-    } else if (is_file($name)) {
-      $class= ClassLoader::getDefault()->loadUri($name);
+    $cl= ClassLoader::getDefault();
+    if (is_file($name)) {
+      $class= $cl->loadUri($name);
+    } else if (strstr($name, '.')) {
+      $class= $cl->loadClass($name);
     } else {
-      $class= XPClass::forName($name);
+      $class= self::loadNamed($cl, $name);
     }
 
     // Check whether class is runnable
