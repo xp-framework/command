@@ -109,14 +109,71 @@ abstract class AbstractRunner {
   }
 
   /**
+   * Find class in a given package and its subpackages
+   *
+   * @param  lang.ClassLoader $cl
+   * @param  string $class
+   * @param  string $package
+   * @return lang.XPClass
+   * @throws lang.ClassNotFoundException
+   */
+  private function findClass($cl, $class, $package) {
+    $file= $class.\xp::CLASS_FILE_EXT;
+    foreach ($cl->packageContents($package) as $resource) {
+      if ($file === $resource) {
+        return ($package ? $package.'.' : '').'.'.$class;
+      } else if ('/' === $resource{strlen($resource) - 1}) {
+        if ($uri= $this->findClass($cl, $class, ($package ? $package.'.' : '').substr($resource, 0, -1))) return $uri;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Find class for a given command name
+   *
+   * @param  string $name
+   * @return lang.XPClass
+   * @throws lang.ClassNotFoundException
+   */
+  private function findCommand($name) {
+    $class= implode('', array_map('ucfirst', explode('-', $name)));
+    foreach (ClassLoader::getLoaders() as $cl) {
+      if ($command= $this->findClass($cl, $class, null)) return $cl->loadClass($command);
+    }
+    throw new ClassNotFoundException($class);
+  }
+
+  /**
    * Runs class
    *
-   * @param  lang.XPClass $class
+   * @param  string $name
    * @param  util.cmd.ParamString $params
    * @param  util.cmd.Config $config
    * @return int
    */
-  protected function runClass($class, $params, $config) {
+  protected function runClass($name, $params, $config) {
+
+    // Class file or class name
+    $cl= ClassLoader::getDefault();
+    if (strstr($name, \xp::CLASS_FILE_EXT)) {
+      $file= new File($name);
+      if (!$file->exists()) {
+        self::$err->writeLine('*** Cannot load class from non-existant file ', $name);
+        return 1;
+      }
+
+      $class= $cl->loadUri($file->getURI());
+    } else if ($cl->providesClass($name)) {
+      $class= $cl->loadClass($name);
+    } else {
+      try {
+        $class= $this->findCommand($name);
+      } catch (ClassNotFoundException $e) {
+        self::$err->writeLine('*** ', $this->verbose ? $e : $e->getMessage());
+        return 1;
+      }
+    }
 
     // Check whether class is runnable
     if (!$class->isSubclassOf('lang.Runnable')) {

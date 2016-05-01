@@ -2,13 +2,10 @@
 
 use util\cmd\ParamString;
 use util\cmd\Config;
-use util\log\Logger;
-use util\log\context\EnvironmentAware;
-use util\PropertyManager;
-use util\FilesystemPropertySource;
-use util\ResourcePropertySource;
-use rdbms\ConnectionManager;
 use lang\XPClass;
+use lang\ClassLoader;
+use lang\ClassNotFoundException;
+use io\File;
 
 /**
  * Runs util.cmd.Command subclasses on the command line.
@@ -156,7 +153,7 @@ class Runner extends AbstractRunner {
         $offset+= 2; $i++;
         break;
       case '-cp':
-        \lang\ClassLoader::registerPath($params->list[$i+ 1], null);
+        ClassLoader::registerPath($params->list[$i+ 1], null);
         $offset+= 2; $i++;
         break;
       case '-v':
@@ -184,30 +181,6 @@ class Runner extends AbstractRunner {
     unset($params->list[-1]);
     $classname= $params->value($offset);
     $classparams= new ParamString(array_slice($params->list, $offset+ 1));
-
-    // Class file or class name
-    if (strstr($classname, \xp::CLASS_FILE_EXT)) {
-      $file= new \io\File($classname);
-      if (!$file->exists()) {
-        self::$err->writeLine('*** Cannot load class from non-existant file ', $classname);
-        return 1;
-      }
-
-      try {
-        $class= \lang\ClassLoader::getDefault()->loadUri($file->getURI());
-      } catch (\lang\ClassNotFoundException $e) {
-        self::$err->writeLine('*** ', $this->verbose ? $e : $e->getMessage());
-        return 1;
-      }
-    } else {
-      try {
-        $class= \lang\XPClass::forName($classname);
-      } catch (\lang\ClassNotFoundException $e) {
-        self::$err->writeLine('*** ', $this->verbose ? $e : $e->getMessage());
-        return 1;
-      }
-    }
-
-    return $this->runClass($class, $classparams, $config);
+    return $this->runClass($classname, $classparams, $config);
   }
 }
