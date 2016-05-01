@@ -164,7 +164,8 @@ class Runner extends AbstractRunner {
         $offset+= 1; $i++;
         break;
       case '-?':
-        return self::usage();
+        $this->selfUsage();
+        return 1;
       default:
         break 2;
     }

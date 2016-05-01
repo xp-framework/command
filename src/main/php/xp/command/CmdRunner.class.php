@@ -171,7 +171,8 @@ class CmdRunner extends AbstractRunner {
         $offset+= 1; $i++;
         break;
       case '-?':
-        return $this->usage();
+        $this->selfUsage();
+        return 1;
       default:
         break 2;
     }
