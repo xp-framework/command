@@ -16,7 +16,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
     $out    = null,
     $err    = null;
 
-  /** @return var */
+  /** @return xp.command.AbstractRunner */
   protected abstract function runner();
 
   /** @return void */
