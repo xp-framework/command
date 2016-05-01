@@ -79,18 +79,10 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   }
 
   #[@test]
-  public function nonExistantClass() {
+  public function nonExistant() {
     $return= $this->runWith(['@@NONEXISTANT@@']);
     $this->assertEquals(1, $return);
-    $this->assertOnStream($this->err, '*** Class "@@NONEXISTANT@@" could not be found');
-    $this->assertEquals('', $this->out->getBytes());
-  }
-
-  #[@test]
-  public function nonExistantFile() {
-    $return= $this->runWith(['@@NON-EXISTANT@@.'.\xp::CLASS_FILE_EXT]);
-    $this->assertEquals(1, $return);
-    $this->assertOnStream($this->err, '*** Cannot load class from non-existant file');
+    $this->assertOnStream($this->err, '*** No command named "@@NONEXISTANT@@"');
     $this->assertEquals('', $this->out->getBytes());
   }
 
@@ -99,6 +91,14 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
     $return= $this->runWith([nameof($this)]);
     $this->assertEquals(1, $return);
     $this->assertOnStream($this->err, '*** '.nameof($this).' is not runnable');
+    $this->assertEquals('', $this->out->getBytes());
+  }
+
+  #[@test]
+  public function notRunnableFile() {
+    $return= $this->runWith([__FILE__]);
+    $this->assertEquals(1, $return);
+    $this->assertOnStream($this->err, '*** '.strtr(self::class, '\\', '.').' is not runnable');
     $this->assertEquals('', $this->out->getBytes());
   }
 
