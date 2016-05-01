@@ -45,7 +45,7 @@ final class Commands {
   private static function loadNamed($name) {
     $class= implode('', array_map('ucfirst', explode('-', $name)));
     foreach (self::$packages as $package) {
-      if ($package->providesClass($class)) return $package->loadClass($qualified);
+      if ($package->providesClass($class)) return $package->loadClass($class);
     }
     throw new IllegalArgumentException('No command named "'.$name.'"');
   }
