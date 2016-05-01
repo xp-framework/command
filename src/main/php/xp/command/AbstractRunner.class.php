@@ -57,6 +57,15 @@ abstract class AbstractRunner {
   protected abstract function selfUsage();
 
   /**
+   * Run
+   *
+   * @param  util.cmd.ParamString $params
+   * @param  util.cmd.Config $config
+   * @return int
+   */
+  public abstract function run(ParamString $params, Config $config= null);
+
+  /**
    * Main method
    *
    * @param   string[] args
