@@ -5,6 +5,7 @@ Commands ChangeLog
 
 ## 7.1.0 / 2016-05-01
 
+* Merged PR #6: Add support for named commands - @thekid
 * Merged PR #4: Pass configuration to command constructor - @thekid
 
 ## 7.0.0 / 2016-02-21
