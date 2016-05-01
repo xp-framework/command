@@ -109,7 +109,7 @@ class CmdRunner extends AbstractRunner {
       );
     }
 
-    Help::render(self::$err, substr($markdown, 0, -1), $class->getClassLoader());
+    Help::render(self::$err, substr($markdown, 0, -1).$text, $class->getClassLoader());
   }
 
   /**
