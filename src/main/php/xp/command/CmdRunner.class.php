@@ -153,8 +153,7 @@ class CmdRunner extends AbstractRunner {
       $markdown.= "\n";
     }
 
-    $markdown.= "* In global package\n\n";
-    $markdown.= $commandsIn(Package::forName(null));
+    $markdown.= "* In global package\n\n".$commandsIn(Package::forName(null));
 
     Help::render(self::$err, $markdown, []);
   }
