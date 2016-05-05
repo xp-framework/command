@@ -3,6 +3,8 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 7.1.1 / 2016-05-05
+
 * Shortened command names in usage if a command package is registered
   (@thekid)
 
