@@ -95,13 +95,10 @@ final class Commands {
    * @return string
    */
   public static function nameOf($class) {
-    $command= $class->getName();
-    if (false !== ($p= strrpos($command, '.'))) {
-      $local= substr($command, $p + 1);
-      foreach (self::$packages as $package) {
-        if ($package->providesClass($local)) return $local;
-      }
+    if (isset(self::$packages[$class->getPackage()->getName()])) {
+      return $class->getSimpleName();
+    } else {
+      return $class->getName();
     }
-    return $command;
   }
 }
