@@ -2,11 +2,14 @@
 
 use lang\ClassLoader;
 use lang\IllegalArgumentException;
+use lang\ClassNotFoundException;
 use lang\reflect\Package;
 
 /**
  * Commands factory. Loads classes, files and named commands by using
  * a package-based search.
+ *
+ * @test  xp://util.cmd.unittest.CommandsTest
  */
 final class Commands {
   private static $packages= [];
@@ -23,7 +26,17 @@ final class Commands {
    * @return void
    */
   public static function registerPackage($package) {
-    self::$packages[]= Package::forName($package);
+    self::$packages[$package]= Package::forName($package);
+  }
+
+  /**
+   * Remove package
+   *
+   * @param  string $package
+   * @return void
+   */
+  public static function removePackage($package) {
+    unset(self::$packages[$package]);
   }
 
   /**
@@ -32,7 +45,7 @@ final class Commands {
    * @return lang.reflect.Package[]
    */
   public static function allPackages() {
-    return self::$packages;
+    return array_values(self::$packages);
   }
 
   /**
@@ -40,14 +53,13 @@ final class Commands {
    *
    * @param  string $name
    * @return lang.XPClass
-   * @throws lang.IllegalArgumentException if no class can be found by the given name
+   * @throws lang.ClassNotFoundException if no class can be found by the given name
    */
   private static function loadNamed($name) {
-    $class= implode('', array_map('ucfirst', explode('-', $name)));
     foreach (self::$packages as $package) {
-      if ($package->providesClass($class)) return $package->loadClass($class);
+      if ($package->providesClass($name)) return $package->loadClass($name);
     }
-    throw new IllegalArgumentException('No command named "'.$name.'"');
+    throw new ClassNotFoundException($name);
   }
 
   /**
@@ -74,5 +86,22 @@ final class Commands {
     }
 
     return $class;
+  }
+
+  /**
+   * Return name of a given class - shortened if inside a registered package
+   *
+   * @param  lang.XPClass $class
+   * @return string
+   */
+  public static function nameOf($class) {
+    $command= $class->getName();
+    if (false !== ($p= strrpos($command, '.'))) {
+      $local= substr($command, $p + 1);
+      foreach (self::$packages as $package) {
+        if ($package->providesClass($local)) return $local;
+      }
+    }
+    return $command;
   }
 }

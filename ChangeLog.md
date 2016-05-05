@@ -3,6 +3,9 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+* Shortened command names in usage if a command package is registered
+  (@thekid)
+
 ## 7.1.0 / 2016-05-01
 
 * Merged PR #6: Add support for named commands - @thekid

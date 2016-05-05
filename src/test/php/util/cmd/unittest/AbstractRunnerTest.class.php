@@ -82,7 +82,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   public function nonExistant() {
     $return= $this->runWith(['@@NONEXISTANT@@']);
     $this->assertEquals(1, $return);
-    $this->assertOnStream($this->err, '*** No command named "@@NONEXISTANT@@"');
+    $this->assertOnStream($this->err, '*** Class "@@NONEXISTANT@@" could not be found');
     $this->assertEquals('', $this->out->getBytes());
   }
 

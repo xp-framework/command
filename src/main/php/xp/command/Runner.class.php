@@ -109,7 +109,7 @@ class Runner extends AbstractRunner {
 
     // Usage
     asort($positional);
-    self::$err->write('Usage: $ xpcli ', $class->getName(), ' ');
+    self::$err->write('Usage: $ xpcli ', Commands::nameOf($class), ' ');
     foreach ($positional as $name) {
       self::$err->write('<', $name, '> ');
     }
