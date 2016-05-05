@@ -57,9 +57,14 @@ class CommandsTest extends \unittest\TestCase {
     Commands::named($name);
   }
 
-  #[@test, @expect(IllegalArgumentException::class)]
-  public function named_non_runnable() {
+  #[@test, @expect(class= IllegalArgumentException::class, withMessage= '/CommandsTest is not runnable/')]
+  public function name_non_runnable() {
     Commands::named(nameof($this));
+  }
+
+  #[@test, @expect(class= IllegalArgumentException::class, withMessage= '/CommandsTest is not runnable/')]
+  public function file_not_runnable() {
+    Commands::named(__FILE__);
   }
 
   #[@test]
