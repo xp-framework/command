@@ -3,6 +3,10 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 7.1.2 / 2016-07-05
+
+* Fixed I/O not being reassigned on Console changes - @thekid
+
 ## 7.1.1 / 2016-05-05
 
 * Shortened command names in usage if a command package is registered
