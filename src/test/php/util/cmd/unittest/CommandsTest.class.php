@@ -8,12 +8,15 @@ use lang\IllegalArgumentException;
 use lang\ClassNotFoundException;
 
 class CommandsTest extends \unittest\TestCase {
-  private static $class;
+  private static $class, $global;
 
   /** @return void */
   #[@beforeClass]
   public static function defineCommandClass() {
     self::$class= ClassLoader::defineClass('util.cmd.unittest.BatchImport', Command::class, [], [
+      'run' => function() { }
+    ]);
+    self::$global= ClassLoader::defineClass('BatchImport', Command::class, [], [
       'run' => function() { }
     ]);
   }
@@ -50,6 +53,11 @@ class CommandsTest extends \unittest\TestCase {
     self::withPackage('util.cmd.unittest', function() use($name) {
       $this->assertEquals(self::$class, Commands::named($name));
     });
+  }
+
+  #[@test]
+  public function unqualified_name_in_global_namespace() {
+    $this->assertEquals(self::$global, Commands::named('BatchImport'));
   }
 
   #[@test, @expect(ClassNotFoundException::class), @values(['class.does.not.Exist', 'DoesNotExist'])]

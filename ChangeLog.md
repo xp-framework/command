@@ -3,6 +3,10 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 7.1.3 / 2016-07-11
+
+* Fixed issue #8: Command inside "." - @thekid
+
 ## 7.1.2 / 2016-07-05
 
 * Fixed I/O not being reassigned on Console changes - @thekid

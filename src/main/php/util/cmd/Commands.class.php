@@ -49,17 +49,16 @@ final class Commands {
   }
 
   /**
-   * Loads a named command
+   * Locates a named command
    *
    * @param  string $name
-   * @return lang.XPClass
-   * @throws lang.ClassNotFoundException if no class can be found by the given name
+   * @return lang.reflect.Package or NULL if nothing is found
    */
-  private static function loadNamed($name) {
+  private static function locateNamed($name) {
     foreach (self::$packages as $package) {
-      if ($package->providesClass($name)) return $package->loadClass($name);
+      if ($package->providesClass($name)) return $package;
     }
-    throw new ClassNotFoundException($name);
+    return null;
   }
 
   /**
@@ -76,8 +75,10 @@ final class Commands {
       $class= $cl->loadUri($name);
     } else if (strstr($name, '.')) {
       $class= $cl->loadClass($name);
+    } else if ($package= self::locateNamed($name)) {
+      $class= $package->loadClass($name);
     } else {
-      $class= self::loadNamed($name);
+      $class= $cl->loadClass($name);
     }
 
     // Check whether class is runnable
