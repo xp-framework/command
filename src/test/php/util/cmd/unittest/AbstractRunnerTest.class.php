@@ -652,8 +652,10 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
         // Intentionally empty
       }
     }');
+    $debug= new \util\Properties('');
+    $debug->load(new MemoryInputStream("[section]\nkey=overwritten_value"));
     $this->runWith([nameof($command)], '', new Config(
-      new \util\RegisteredPropertySource('debug', \util\Properties::fromString("[section]\nkey=overwritten_value")),
+      new \util\RegisteredPropertySource('debug', $debug),
       new \util\FilesystemPropertySource(__DIR__)
     ));
     $this->assertEquals('', $this->err->getBytes());

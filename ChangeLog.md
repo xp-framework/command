@@ -3,6 +3,12 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 7.2.0 / 2016-08-29
+
+* Added forward compatibility with XP 8.0.0: Refrain from using deprecated
+  `util.Properties::fromString()`
+  (@thekid)
+
 ## 7.1.3 / 2016-07-11
 
 * Fixed issue #8: Command inside "." - @thekid

@@ -188,7 +188,8 @@ abstract class AbstractRunner {
             // If a PropertyAccess is retrieved which is not a util.Properties,
             // then, for BC sake, convert it into a util.Properties
             if ($p instanceof PropertyAccess && !$p instanceof Properties) {
-              $convert= Properties::fromString('');
+              $convert= new Properties(null);
+              $convert->load(new \io\streams\MemoryInputStream(''));
               $section= $p->getFirstSection();
 
               while ($section) {
