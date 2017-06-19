@@ -71,9 +71,9 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
    */
   protected function newCommand() {
     return newinstance(Command::class, [], '{
-      public static $wasRun= FALSE;
-      public function __construct() { self::$wasRun= FALSE; }
-      public function run() { self::$wasRun= TRUE; }
+      public static $wasRun= false;
+      public function __construct() { self::$wasRun= false; }
+      public function run() { self::$wasRun= true; }
       public function wasRun() { return self::$wasRun; }
     }');
   }
@@ -155,7 +155,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function positionalArgument() {
     $command= newinstance(Command::class, [], '{
-      private $arg= NULL;
+      private $arg= null;
 
       #[@arg(position= 0)]
       public function setArg($arg) { $this->arg= $arg; }
@@ -171,7 +171,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function missingPositionalArgumentt() {
     $command= newinstance(Command::class, [], '{
-      private $arg= NULL;
+      private $arg= null;
 
       #[@arg(position= 0)]
       public function setArg($arg) { $this->arg= $arg; }
@@ -187,7 +187,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function shortNamedArgument() {
     $command= newinstance(Command::class, [], '{
-      private $arg= NULL;
+      private $arg= null;
 
       #[@arg]
       public function setArg($arg) { $this->arg= $arg; }
@@ -203,7 +203,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function longNamedArgument() {
     $command= newinstance(Command::class, [], '{
-      private $arg= NULL;
+      private $arg= null;
 
       #[@arg]
       public function setArg($arg) { $this->arg= $arg; }
@@ -219,7 +219,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function shortRenamedArgument() {
     $command= newinstance(Command::class, [], '{
-      private $arg= NULL;
+      private $arg= null;
 
       #[@arg(name= "pass")]
       public function setArg($arg) { $this->arg= $arg; }
@@ -235,7 +235,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function longRenamedArgument() {
     $command= newinstance(Command::class, [], '{
-      private $arg= NULL;
+      private $arg= null;
 
       #[@arg(name= "pass")]
       public function setArg($arg) { $this->arg= $arg; }
@@ -251,7 +251,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function missingNamedArgument() {
     $command= newinstance(Command::class, [], '{
-      private $arg= NULL;
+      private $arg= null;
 
       #[@arg]
       public function setArg($arg) { $this->arg= $arg; }
@@ -267,10 +267,10 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function existanceArgumentNotPassed() {
     $command= newinstance(Command::class, [], '{
-      private $verbose= FALSE;
+      private $verbose= false;
 
       #[@arg]
-      public function setVerbose() { $this->verbose= TRUE; }
+      public function setVerbose() { $this->verbose= true; }
       public function run() { $this->out->write($this->verbose ? "true" : "false"); }
     }');
 
@@ -283,8 +283,8 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function optionalArgument() {
     $command= newinstance(Command::class, [], '{
-      private $verbose= FALSE;
-      private $name= NULL;
+      private $verbose= false;
+      private $name= null;
 
       #[@arg]
       public function setName($name= "unknown") { $this->name= $name; }
@@ -300,8 +300,8 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function optionalArgumentNotPassed() {
     $command= newinstance(Command::class, [], '{
-      private $verbose= FALSE;
-      private $name= NULL;
+      private $verbose= false;
+      private $name= null;
 
       #[@arg]
       public function setName($name= "unknown") { $this->name= $name; }
@@ -317,10 +317,10 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function shortExistanceArgumentPassed() {
     $command= newinstance(Command::class, [], '{
-      private $verbose= FALSE;
+      private $verbose= false;
 
       #[@arg]
-      public function setVerbose() { $this->verbose= TRUE; }
+      public function setVerbose() { $this->verbose= true; }
       public function run() { $this->out->write($this->verbose ? "true" : "false"); }
     }');
 
@@ -333,10 +333,10 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function longExistanceArgumentPassed() {
     $command= newinstance(Command::class, [], '{
-      private $verbose= FALSE;
+      private $verbose= false;
 
       #[@arg]
-      public function setVerbose() { $this->verbose= TRUE; }
+      public function setVerbose() { $this->verbose= true; }
       public function run() { $this->out->write($this->verbose ? "true" : "false"); }
     }');
 
@@ -385,7 +385,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function allArgs() {
     $this->assertAllArgs('a, b, c, d, e, f, g', newinstance(Command::class, [], '{
-      private $verbose= FALSE;
+      private $verbose= false;
       private $args= [];
 
       #[@args(select= "[0..]")]
@@ -397,7 +397,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function allArgsCompactNotation() {
     $this->assertAllArgs('a, b, c, d, e, f, g', newinstance(Command::class, [], '{
-      private $verbose= FALSE;
+      private $verbose= false;
       private $args= [];
 
       #[@args(select= "*")]
@@ -409,7 +409,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function boundedArgs() {
     $this->assertAllArgs('a, b, c', newinstance(Command::class, [], '{
-      private $verbose= FALSE;
+      private $verbose= false;
       private $args= [];
 
       #[@args(select= "[0..2]")]
@@ -421,7 +421,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function boundedArgsFromOffset() {
     $this->assertAllArgs('c, d, e', newinstance(Command::class, [], '{
-      private $verbose= FALSE;
+      private $verbose= false;
       private $args= [];
 
       #[@args(select= "[2..4]")]
@@ -433,7 +433,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function positionalAndBoundedArgsFromOffset() {
     $this->assertAllArgs('a, c, d, e', newinstance(Command::class, [], '{
-      private $verbose= FALSE;
+      private $verbose= false;
       private $args= [];
 
       #[@args(select= "0, [2..4]")]
@@ -445,7 +445,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function boundedAndPositionalArgsWithOverlap() {
     $this->assertAllArgs('a, b, c, b', newinstance(Command::class, [], '{
-      private $verbose= FALSE;
+      private $verbose= false;
       private $args= [];
 
       #[@args(select= "[0..2], 1")]
@@ -457,7 +457,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function positionalArgs() {
     $this->assertAllArgs('a, c, e, f', newinstance(Command::class, [], '{
-      private $verbose= FALSE;
+      private $verbose= false;
       private $args= [];
 
       #[@args(select= "0, 2, 4, 5")]
@@ -469,11 +469,11 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function configOption() {
     $command= newinstance(Command::class, [], '{
-      private $choke= FALSE;
+      private $choke= false;
 
       #[@arg]
       public function setChoke() { 
-        $this->choke= TRUE; 
+        $this->choke= true; 
       }
       
       public function run() { 
@@ -521,7 +521,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function loggerCategoryInjection() {
     $command= newinstance(Command::class, [], '{
-      private $cat= NULL;
+      private $cat= null;
       
       #[@inject(type= "util.log.LogCategory", name= "debug")]
       public function setTrace($cat) { 
@@ -529,7 +529,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
       }
       
       public function run() { 
-        $this->out->write($this->cat ? $this->cat->getClass() : NULL); 
+        $this->out->write($this->cat ? typeof($this->cat) : null); 
       }
     }');
     $this->runWith([nameof($command)]);
@@ -539,7 +539,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function loggerCategoryInjectionViaTypeRestriction() {
     $command= newinstance(Command::class, [], '{
-      private $cat= NULL;
+      private $cat= null;
       
       #[@inject(name= "debug")]
       public function setTrace(\util\log\LogCategory $cat) { 
@@ -547,7 +547,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
       }
       
       public function run() { 
-        $this->out->write($this->cat ? $this->cat->getClass() : NULL); 
+        $this->out->write($this->cat ? typeof($this->cat) : null); 
       }
     }');
     $this->runWith([nameof($command)]);
@@ -557,7 +557,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function loggerCategoryInjectionViaTypeDocumentation() {
     $command= newinstance(Command::class, [], '{
-      private $cat= NULL;
+      private $cat= null;
       
       /**
        * @param   util.log.LogCategory cat
@@ -568,7 +568,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
       }
       
       public function run() { 
-        $this->out->write($this->cat ? $this->cat->getClass() : NULL); 
+        $this->out->write($this->cat ? typeof($this->cat) : null); 
       }
     }');
     $this->runWith([nameof($command)]);
@@ -578,14 +578,14 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   #[@test]
   public function injectionOccursBeforeArguments() {
     $command= newinstance(Command::class, [], '{
-      private $cat= NULL;
+      private $cat= null;
 
       /**
        * @param   string name
        */
       #[@arg(position= 0)]
       public function setName($name) { 
-        $this->out->write($this->cat ? $this->cat->getClass() : NULL); 
+        $this->out->write($this->cat ? typeof($this->cat) : null); 
       }
       
       /**

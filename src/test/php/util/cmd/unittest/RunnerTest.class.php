@@ -51,7 +51,7 @@ class RunnerTest extends AbstractRunnerTest {
       }
     }');
     $return= $this->runWith([
-      '-cp', $this->getClass()->getPackage()->getResourceAsStream('instructions.xar')->getURI(), 
+      '-cp', typeof($this)->getPackage()->getResourceAsStream('instructions.xar')->getURI(), 
       nameof($command),
       '-cp', 'Copy'
     ]);
