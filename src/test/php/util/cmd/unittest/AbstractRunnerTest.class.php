@@ -734,4 +734,15 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
     $this->runWith([nameof($command)]);
     $this->assertOnStream($this->out, 'Created with util.cmd.Config');
   }
+
+  #[@test]
+  public function can_be_invoked_via_main() {
+    $command= newinstance(Command::class, [], [
+      'arg' => 0,
+      '#[@arg] setArg' => function($arg) { $this->arg= $arg; },
+      'run' => function() { return $this->arg; }
+    ]);
+
+    $this->assertEquals(12, $command::main(['-a', 12]));
+  }
 }
