@@ -65,15 +65,15 @@ class Query extends \util\cmd\Command {
     $this->verbose && $this->out->writeLine('>>> ', $this->query);
 
     $result= $this->connection->open($this->query);
-    if ($result instanceof ResultSet) {
+    if ($result->isSuccess()) {
+      $this->verbose && $this->out->writeLine('<<< ', $result->affected());
+      return $result->affected() ? 0 : 1;
+    } else {
       $this->verbose && $this->out->writeLine('<<< Results');
       foreach ($result as $found => $record) {
         $this->out->writeLine($record);
       }
       return isset($found) ? 0 : 2;
-    } else {
-      $this->verbose && $this->out->writeLine('<<< ', $result);
-      return $result ? 0 : 1;
     }
   }
 }
