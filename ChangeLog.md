@@ -3,6 +3,8 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 8.1.0 / 2017-06-20
+
 * Merged PR #9: Make commands runnable via `xp [class]` - @thekid
 
 ## 8.0.0 / 2017-06-20
