@@ -8,7 +8,7 @@
  *
  * @test   xp://net.xp_framework.unittest.util.cmd.ParamStringTest
  */
-class ParamString extends \lang\Object {
+class ParamString {
   public 
     $list     = [],
     $count    = 0,

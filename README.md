@@ -4,7 +4,7 @@ Commands
 [![Build Status on TravisCI](https://secure.travis-ci.org/xp-framework/command.svg)](http://travis-ci.org/xp-framework/command)
 [![XP Framework Module](https://raw.githubusercontent.com/xp-framework/web/master/static/xp-framework-badge.png)](https://github.com/xp-framework/core)
 [![BSD Licence](https://raw.githubusercontent.com/xp-framework/web/master/static/licence-bsd.png)](https://github.com/xp-framework/core/blob/master/LICENCE.md)
-[![Required PHP 5.5+](https://raw.githubusercontent.com/xp-framework/web/master/static/php-5_5plus.png)](http://php.net/)
+[![Required PHP 5.6+](https://raw.githubusercontent.com/xp-framework/web/master/static/php-5_6plus.png)](http://php.net/)
 [![Supports PHP 7.0+](https://raw.githubusercontent.com/xp-framework/web/master/static/php-7_0plus.png)](http://php.net/)
 [![Supports HHVM 3.4+](https://raw.githubusercontent.com/xp-framework/web/master/static/hhvm-3_4plus.png)](http://hhvm.com/)
 [![Latest Stable Version](https://poser.pugx.org/xp-framework/command/version.png)](https://packagist.org/packages/xp-framework/command)
@@ -65,15 +65,15 @@ class Query extends \util\cmd\Command {
     $this->verbose && $this->out->writeLine('>>> ', $this->query);
 
     $result= $this->connection->open($this->query);
-    if ($result instanceof ResultSet) {
+    if ($result->isSuccess()) {
+      $this->verbose && $this->out->writeLine('<<< ', $result->affected());
+      return $result->affected() ? 0 : 1;
+    } else {
       $this->verbose && $this->out->writeLine('<<< Results');
       foreach ($result as $found => $record) {
         $this->out->writeLine($record);
       }
       return isset($found) ? 0 : 2;
-    } else {
-      $this->verbose && $this->out->writeLine('<<< ', $result);
-      return $result ? 0 : 1;
     }
   }
 }

@@ -3,6 +3,34 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 8.1.0 / 2017-06-20
+
+* Merged PR #9: Make commands runnable via `xp [class]` - @thekid
+
+## 8.0.0 / 2017-06-20
+
+* **Heads up:** Drop PHP 5.5 support - @thekid
+* Added forward compatibility with XP 9.0.0 - @thekid
+
+## 7.2.0 / 2016-08-29
+
+* Added forward compatibility with XP 8.0.0: Refrain from using deprecated
+  `util.Properties::fromString()`
+  (@thekid)
+
+## 7.1.3 / 2016-07-11
+
+* Fixed issue #8: Command inside "." - @thekid
+
+## 7.1.2 / 2016-07-05
+
+* Fixed I/O not being reassigned on Console changes - @thekid
+
+## 7.1.1 / 2016-05-05
+
+* Shortened command names in usage if a command package is registered
+  (@thekid)
+
 ## 7.1.0 / 2016-05-01
 
 * Merged PR #6: Add support for named commands - @thekid

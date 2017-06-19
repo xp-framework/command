@@ -2,11 +2,14 @@
 
 use lang\ClassLoader;
 use lang\IllegalArgumentException;
+use lang\ClassNotFoundException;
 use lang\reflect\Package;
 
 /**
  * Commands factory. Loads classes, files and named commands by using
  * a package-based search.
+ *
+ * @test  xp://util.cmd.unittest.CommandsTest
  */
 final class Commands {
   private static $packages= [];
@@ -23,7 +26,17 @@ final class Commands {
    * @return void
    */
   public static function registerPackage($package) {
-    self::$packages[]= Package::forName($package);
+    self::$packages[$package]= Package::forName($package);
+  }
+
+  /**
+   * Remove package
+   *
+   * @param  string $package
+   * @return void
+   */
+  public static function removePackage($package) {
+    unset(self::$packages[$package]);
   }
 
   /**
@@ -32,22 +45,20 @@ final class Commands {
    * @return lang.reflect.Package[]
    */
   public static function allPackages() {
-    return self::$packages;
+    return array_values(self::$packages);
   }
 
   /**
-   * Loads a named command
+   * Locates a named command
    *
    * @param  string $name
-   * @return lang.XPClass
-   * @throws lang.IllegalArgumentException if no class can be found by the given name
+   * @return lang.reflect.Package or NULL if nothing is found
    */
-  private static function loadNamed($name) {
-    $class= implode('', array_map('ucfirst', explode('-', $name)));
+  private static function locateNamed($name) {
     foreach (self::$packages as $package) {
-      if ($package->providesClass($class)) return $package->loadClass($class);
+      if ($package->providesClass($name)) return $package;
     }
-    throw new IllegalArgumentException('No command named "'.$name.'"');
+    return null;
   }
 
   /**
@@ -64,8 +75,10 @@ final class Commands {
       $class= $cl->loadUri($name);
     } else if (strstr($name, '.')) {
       $class= $cl->loadClass($name);
+    } else if ($package= self::locateNamed($name)) {
+      $class= $package->loadClass($name);
     } else {
-      $class= self::loadNamed($name);
+      $class= $cl->loadClass($name);
     }
 
     // Check whether class is runnable
@@ -74,5 +87,19 @@ final class Commands {
     }
 
     return $class;
+  }
+
+  /**
+   * Return name of a given class - shortened if inside a registered package
+   *
+   * @param  lang.XPClass $class
+   * @return string
+   */
+  public static function nameOf($class) {
+    if (isset(self::$packages[$class->getPackage()->getName()])) {
+      return $class->getSimpleName();
+    } else {
+      return $class->getName();
+    }
   }
 }

@@ -3,6 +3,7 @@
 use util\cmd\ParamString;
 use util\cmd\Config;
 use util\cmd\Commands;
+use util\cmd\Console;
 use io\streams\InputStream;
 use io\streams\OutputStream;
 use io\streams\StringReader;
@@ -29,9 +30,9 @@ abstract class AbstractRunner {
   protected $verbose = false;
 
   static function __static() {
-    self::$in= new StringReader(new ConsoleInputStream(STDIN));
-    self::$out= new StringWriter(new ConsoleOutputStream(STDOUT));
-    self::$err= new StringWriter(new ConsoleOutputStream(STDERR));
+    self::$in= Console::$in;
+    self::$out= Console::$out;
+    self::$err= Console::$err;
   }
 
   /**
