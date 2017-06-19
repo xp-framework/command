@@ -3,6 +3,8 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #9: Make commands runnable via `xp [class]` - @thekid
+
 ## 8.0.0 / 2017-06-20
 
 * **Heads up:** Drop PHP 5.5 support - @thekid
