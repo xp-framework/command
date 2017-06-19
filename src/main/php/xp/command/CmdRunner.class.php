@@ -3,8 +3,6 @@
 use util\cmd\ParamString;
 use util\cmd\Config;
 use util\cmd\Commands;
-use util\log\Logger;
-use util\log\context\EnvironmentAware;
 use util\PropertyManager;
 use util\PropertyAccess;
 use util\Properties;
@@ -43,9 +41,6 @@ use xp\runtime\Help;
  *   ```sh
  *   $ xp cmd -c etc/default -c etc/prod com.example.Query
  *   ```
- *
- * Supports the convention that *log.ini* will contain the logger
- * configuration, and *database.ini* will contain database connections.
  *
  * Pass `-v` to see more verbose output from argument handling.
  *
