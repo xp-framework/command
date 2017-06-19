@@ -3,7 +3,7 @@
 /**
  * Base class for all commands
  */
-abstract class Command extends \lang\Object implements \lang\Runnable {
+abstract class Command implements \lang\Runnable {
   public
     #[@type('io.streams.StringReader')]
     $in  = null,
