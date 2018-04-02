@@ -3,6 +3,10 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 8.1.1 / 2018-04-02
+
+* Fixed compatiblity with PHP 7.2 - @thekid
+
 ## 8.1.0 / 2017-06-20
 
 * Merged PR #9: Make commands runnable via `xp [class]` - @thekid
