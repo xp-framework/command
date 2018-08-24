@@ -3,6 +3,10 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 9.0.0 / 2018-08-25
+
+* Merged PR #7: Remove built-in injection - @thekid
+
 ## 8.1.1 / 2018-04-02
 
 * Fixed compatiblity with PHP 7.2 - @thekid
