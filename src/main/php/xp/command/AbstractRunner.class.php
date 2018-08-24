@@ -8,14 +8,8 @@ use io\streams\InputStream;
 use io\streams\OutputStream;
 use io\streams\StringReader;
 use io\streams\StringWriter;
-use util\log\Logger;
-use util\log\context\EnvironmentAware;
-use util\PropertyManager;
-use util\PropertyAccess;
-use util\Properties;
-use util\FilesystemPropertySource;
-use util\ResourcePropertySource;
-use rdbms\ConnectionManager;
+use io\streams\ConsoleInputStream;
+use io\streams\ConsoleOutputStream;
 use lang\XPClass;
 use lang\System;
 use lang\ClassLoader;
@@ -129,28 +123,6 @@ abstract class AbstractRunner {
       return 0;
     }
 
-    // BC: PropertyManager, Logger, ConnectionManager instances
-    $pm= PropertyManager::getInstance();
-    $pm->setSources($config->sources());
-
-    $l= Logger::getInstance();
-    $pm->hasProperties('log') && $l->configure($pm->getProperties('log'));
-
-    if (class_exists('rdbms\DBConnection')) {   // FIXME: Job of XPInjector?
-      $cm= ConnectionManager::getInstance();
-      $pm->hasProperties('database') && $cm->configure($pm->getProperties('database'));
-    }
-
-    // Setup logger context for all registered log categories
-    foreach (Logger::getInstance()->getCategories() as $category) {
-      if (null === ($context= $category->getContext()) || !($context instanceof EnvironmentAware)) continue;
-      $context->setHostname(System::getProperty('host.name'));
-      $context->setRunner(nameof($this));
-      $context->setInstance($class->getName());
-      $context->setResource(null);
-      $context->setParams($params->string);
-    }
-
     if ($class->hasMethod('newInstance')) {
       $instance= $class->getMethod('newInstance')->invoke(null, [$config]);
     } else if ($class->hasConstructor()) {
@@ -161,73 +133,9 @@ abstract class AbstractRunner {
     $instance->in= self::$in;
     $instance->out= self::$out;
     $instance->err= self::$err;
-    $methods= $class->getMethods();
-
-    // Injection
-    foreach ($methods as $method) {
-      if (!$method->hasAnnotation('inject')) continue;
-
-      $inject= $method->getAnnotation('inject');
-      if (isset($inject['type'])) {
-        $type= $inject['type'];
-      } else if ($restriction= $method->getParameter(0)->getTypeRestriction()) {
-        $type= $restriction->getName();
-      } else {
-        $type= $method->getParameter(0)->getType()->getName();
-      }
-      try {
-        switch ($type) {
-          case 'rdbms.DBConnection': {
-            $args= [$cm->getByHost($inject['name'], 0)];
-            break;
-          }
-
-          case 'util.Properties': {
-            $p= $pm->getProperties($inject['name']);
-
-            // If a PropertyAccess is retrieved which is not a util.Properties,
-            // then, for BC sake, convert it into a util.Properties
-            if ($p instanceof PropertyAccess && !$p instanceof Properties) {
-              $convert= new Properties(null);
-              $convert->load(new \io\streams\MemoryInputStream(''));
-              $section= $p->getFirstSection();
-
-              while ($section) {
-                // HACK: Properties::writeSection() would first attempts to
-                // read the whole file, we cannot make use of it.
-                $convert->_data[$section]= $p->readSection($section);
-                $section= $p->getNextSection();
-              }
-              $args= [$convert];
-            } else {
-              $args= [$p];
-            }
-            break;
-          }
-
-          case 'util.log.LogCategory': {
-            $args= [$l->getCategory($inject['name'])];
-            break;
-          }
-
-          default: {
-            self::$err->writeLine('*** Unknown injection type "'.$type.'" at method "'.$method->getName().'"');
-            return 2;
-          }
-        }
-
-        $method->invoke($instance, $args);
-      } catch (TargetInvocationException $e) {
-        self::$err->writeLine('*** Error injecting '.$type.' '.$inject['name'].': '.$e->getCause()->compoundMessage());
-        return 2;
-      } catch (Throwable $e) {
-        self::$err->writeLine('*** Error injecting '.$type.' '.$inject['name'].': '.$e->compoundMessage());
-        return 2;
-      }
-    }
     
     // Arguments
-    foreach ($methods as $method) {
+    foreach ($class->getMethods() as $method) {
       if ($method->hasAnnotation('args')) { // Pass all arguments
         if (!$method->hasAnnotation('args', 'select')) {
           $begin= 0;
