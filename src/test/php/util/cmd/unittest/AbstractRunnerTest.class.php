@@ -1,11 +1,11 @@
 <?php namespace util\cmd\unittest;
 
-use xp\command\CmdRunner;
+use io\streams\MemoryInputStream;
+use io\streams\MemoryOutputStream;
 use util\cmd\Command;
 use util\cmd\Config;
 use util\cmd\ParamString;
-use io\streams\MemoryInputStream;
-use io\streams\MemoryOutputStream;
+use xp\command\CmdRunner;
 new import('lang.ResourceProvider');
 
 abstract class AbstractRunnerTest extends \unittest\TestCase {
@@ -156,7 +156,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
     $command= newinstance(Command::class, [], '{
       private $arg= null;
 
-      #[@arg(position= 0)]
+      #[@arg(["position" => 0])]
       public function setArg($arg) { $this->arg= $arg; }
       public function run() { $this->out->write($this->arg); }
     }');
@@ -172,7 +172,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
     $command= newinstance(Command::class, [], '{
       private $arg= null;
 
-      #[@arg(position= 0)]
+      #[@arg(["position" => 0])]
       public function setArg($arg) { $this->arg= $arg; }
       public function run() { throw new \unittest\AssertionFailedError("Should not be executed"); }
     }');
@@ -220,7 +220,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
     $command= newinstance(Command::class, [], '{
       private $arg= null;
 
-      #[@arg(name= "pass")]
+      #[@arg(["name" => "pass"])]
       public function setArg($arg) { $this->arg= $arg; }
       public function run() { $this->out->write($this->arg); }
     }');
@@ -236,7 +236,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
     $command= newinstance(Command::class, [], '{
       private $arg= null;
 
-      #[@arg(name= "pass")]
+      #[@arg(["name" => "pass"])]
       public function setArg($arg) { $this->arg= $arg; }
       public function run() { $this->out->write($this->arg); }
     }');
@@ -349,7 +349,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
   public function positionalArgumentException() {
     $command= newinstance(Command::class, [], '{
       
-      #[@arg(position= 0)]
+      #[@arg(["position" => 0])]
       public function setHost($host) { 
         throw new \lang\IllegalArgumentException("Connecting to ".$host." disallowed by policy");
       }
@@ -387,7 +387,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
       private $verbose= false;
       private $args= [];
 
-      #[@args(select= "[0..]")]
+      #[@args(["select" => "[0..]"])]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
@@ -399,7 +399,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
       private $verbose= false;
       private $args= [];
 
-      #[@args(select= "*")]
+      #[@args(["select" => "*"])]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
@@ -411,7 +411,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
       private $verbose= false;
       private $args= [];
 
-      #[@args(select= "[0..2]")]
+      #[@args(["select" => "[0..2]"])]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
@@ -423,7 +423,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
       private $verbose= false;
       private $args= [];
 
-      #[@args(select= "[2..4]")]
+      #[@args(["select" => "[2..4]"])]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
@@ -435,7 +435,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
       private $verbose= false;
       private $args= [];
 
-      #[@args(select= "0, [2..4]")]
+      #[@args(["select" => "0, [2..4]"])]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
@@ -447,7 +447,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
       private $verbose= false;
       private $args= [];
 
-      #[@args(select= "[0..2], 1")]
+      #[@args(["select" => "[0..2], 1"])]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
@@ -459,7 +459,7 @@ abstract class AbstractRunnerTest extends \unittest\TestCase {
       private $verbose= false;
       private $args= [];
 
-      #[@args(select= "0, 2, 4, 5")]
+      #[@args(["select" => "0, 2, 4, 5"])]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));

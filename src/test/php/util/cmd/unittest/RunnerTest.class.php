@@ -1,7 +1,7 @@
 <?php namespace util\cmd\unittest;
 
-use xp\command\Runner;
 use util\cmd\Command;
+use xp\command\Runner;
 
 class RunnerTest extends AbstractRunnerTest {
 
@@ -41,7 +41,7 @@ class RunnerTest extends AbstractRunnerTest {
     $command= newinstance(Command::class, [], '{
       private $copy= NULL;
       
-      #[@arg(short= "cp")]
+      #[@arg(["short" => "cp"])]
       public function setCopy($copy) { 
         $this->copy= \lang\reflect\Package::forName("net.xp_forge.instructions")->loadClass($copy); 
       }
