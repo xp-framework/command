@@ -26,10 +26,14 @@ class ParamString {
   /**
    * Set the parameter string
    * 
-   * @param   array params
+   * @param  string[] $params
+   * @return void
    */  
   public function setParams($params) {
-    $this->list= $params;
+    $this->list= [];
+    foreach ($params as $param) {
+      $this->list[]= (string)$param;
+    }
     $this->list[-1]= @$_SERVER['_'];
     $this->count= sizeof($params);
     $this->string= implode(' ', $params);
@@ -114,7 +118,7 @@ class ParamString {
     if ($pos !== false && isset($this->list[$pos]) && strncmp('--'.$long, $this->list[$pos], $length) == 0) {
     
       // Usage with value (eg.: '--with-foo=bar')
-      if (strlen($this->list[$pos]) > $length && '=' === $this->list[$pos]{$length}) {
+      if (strlen($this->list[$pos]) > $length && '=' === $this->list[$pos][$length]) {
         return substr($this->list[$pos], $length + 1);  // Return string after `--{option}=`
       }
         
@@ -125,7 +129,7 @@ class ParamString {
     // Usage in short (eg.: '-v' or '-f /foo/bar')
     // If the found element is a new parameter, the searched one is used as
     // flag, so just return TRUE, otherwise return the value.
-    if ($pos !== false && (!isset($this->list[$pos]) || '-' === $this->list[$pos]{0})) {
+    if ($pos !== false && (!isset($this->list[$pos]) || '-' === $this->list[$pos][0])) {
       return $default;
     }
     
