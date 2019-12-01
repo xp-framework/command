@@ -1,13 +1,13 @@
 <?php namespace xp\command;
 
-use util\cmd\ParamString;
-use util\cmd\Config;
-use util\cmd\Commands;
-use lang\XPClass;
 use lang\ClassLoader;
 use lang\ClassNotFoundException;
+use lang\XPClass;
 use lang\reflect\Modifiers;
 use lang\reflect\Package;
+use util\cmd\Commands;
+use util\cmd\Config;
+use util\cmd\ParamString;
 
 /**
  * Runs util.cmd.Command subclasses on the command line.
@@ -97,10 +97,10 @@ class Runner extends AbstractRunner {
         $details['#'.($arg['position'] + 1)]= $comment;
         $positional[$arg['position']]= $name;
       } else if (isset($arg['name'])) {
-        $details['--'.$arg['name'].' | -'.(isset($arg['short']) ? $arg['short'] : $arg['name']{0})]= $comment;
+        $details['--'.$arg['name'].' | -'.(isset($arg['short']) ? $arg['short'] : $arg['name'][0])]= $comment;
         $extra[$arg['name']]= $optional;
       } else {
-        $details['--'.$name.' | -'.(isset($arg['short']) ? $arg['short'] : $name{0})]= $comment;
+        $details['--'.$name.' | -'.(isset($arg['short']) ? $arg['short'] : $name[0])]= $comment;
         $extra[$name]= $optional;
       }
     }

@@ -1,20 +1,20 @@
 <?php namespace xp\command;
 
-use util\cmd\ParamString;
-use util\cmd\Config;
-use util\cmd\Commands;
-use util\PropertyManager;
-use util\PropertyAccess;
-use util\Properties;
-use rdbms\ConnectionManager;
-use lang\XPClass;
-use lang\System;
 use lang\ClassLoader;
 use lang\ClassNotFoundException;
-use lang\reflect\TargetInvocationException;
+use lang\System;
+use lang\Throwable;
+use lang\XPClass;
 use lang\reflect\Modifiers;
 use lang\reflect\Package;
-use lang\Throwable;
+use lang\reflect\TargetInvocationException;
+use rdbms\ConnectionManager;
+use util\Properties;
+use util\PropertyAccess;
+use util\PropertyManager;
+use util\cmd\Commands;
+use util\cmd\Config;
+use util\cmd\ParamString;
 use xp\runtime\Help;
 
 /**
@@ -82,10 +82,10 @@ class CmdRunner extends AbstractRunner {
         $details[$name]= [$comment, null];
         $positional[$arg['position']]= $name;
       } else if (isset($arg['name'])) {
-        $details['--'.$arg['name']]= [$comment, isset($arg['short']) ? $arg['short'] : $arg['name']{0}];
+        $details['--'.$arg['name']]= [$comment, isset($arg['short']) ? $arg['short'] : $arg['name'][0]];
         $extra[$arg['name']]= $optional;
       } else {
-        $details['--'.$name]= [$comment, isset($arg['short']) ? $arg['short'] : $name{0}];
+        $details['--'.$name]= [$comment, isset($arg['short']) ? $arg['short'] : $name[0]];
         $extra[$name]= $optional;
       }
     }

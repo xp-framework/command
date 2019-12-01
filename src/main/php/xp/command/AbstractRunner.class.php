@@ -1,21 +1,21 @@
 <?php namespace xp\command;
 
-use util\cmd\ParamString;
-use util\cmd\Config;
-use util\cmd\Commands;
-use util\cmd\Console;
+use io\streams\ConsoleInputStream;
+use io\streams\ConsoleOutputStream;
 use io\streams\InputStream;
 use io\streams\OutputStream;
 use io\streams\StringReader;
 use io\streams\StringWriter;
-use io\streams\ConsoleInputStream;
-use io\streams\ConsoleOutputStream;
-use lang\XPClass;
-use lang\System;
 use lang\ClassLoader;
 use lang\ClassNotFoundException;
-use lang\reflect\TargetInvocationException;
+use lang\System;
 use lang\Throwable;
+use lang\XPClass;
+use lang\reflect\TargetInvocationException;
+use util\cmd\Commands;
+use util\cmd\Config;
+use util\cmd\Console;
+use util\cmd\ParamString;
 use xp\runtime\Help;
 
 /**
@@ -144,7 +144,7 @@ abstract class AbstractRunner {
         } else {
           $pass= [];
           foreach (preg_split('/, ?/', $method->getAnnotation('args', 'select')) as $def) {
-            if (is_numeric($def) || '-' == $def{0}) {
+            if (is_numeric($def) || '-' == $def[0]) {
               $pass[]= $params->value((int)$def);
             } else {
               sscanf($def, '[%d..%d]', $begin, $end);
