@@ -47,17 +47,18 @@ class ParamString {
    * @return  var position on which the parameter is placed or FALSE if nonexistant
    */ 
   protected function _find($long, $short= null) {
-    if (is_null($short)) $short= $long{0};
-    foreach (array_keys($this->list) as $i) {
+    if (null === $short) $short= $long[0];
+
+    foreach ($this->list as $i => $param) {
     
       // Short notation (e.g. -f value)
-      if ($this->list[$i] == '-'.$short) return $i+ 1;
+      if ($param == '-'.$short) return $i + 1;
       
       // Long notation (e.g. --help, without a value)
-      if ($this->list[$i] == '--'.$long) return $i;
+      if ($param == '--'.$long) return $i;
       
       // Long notation (e.g. --file=*.txt)
-      if (substr($this->list[$i], 0, strlen($long)+ 3) == '--'.$long.'=') return $i;
+      if (substr($param, 0, strlen($long) + 3) == '--'.$long.'=') return $i;
     }
     
     return false;
