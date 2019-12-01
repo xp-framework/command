@@ -3,6 +3,10 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 9.0.1 / 2019-12-01
+
+* Made compatible with XP 10 - @thekid
+
 ## 9.0.0 / 2018-08-25
 
 * Merged PR #7: Remove built-in injection - @thekid
