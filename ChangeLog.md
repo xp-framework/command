@@ -3,7 +3,7 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
-## 9.0.1 / 2019-12-01
+## 9.0.1 / 2019-12-02
 
 * Made compatible with XP 10 - @thekid
 
