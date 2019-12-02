@@ -6,7 +6,6 @@ Commands
 [![BSD Licence](https://raw.githubusercontent.com/xp-framework/web/master/static/licence-bsd.png)](https://github.com/xp-framework/core/blob/master/LICENCE.md)
 [![Required PHP 5.6+](https://raw.githubusercontent.com/xp-framework/web/master/static/php-5_6plus.png)](http://php.net/)
 [![Supports PHP 7.0+](https://raw.githubusercontent.com/xp-framework/web/master/static/php-7_0plus.png)](http://php.net/)
-[![Supports HHVM 3.4+](https://raw.githubusercontent.com/xp-framework/web/master/static/hhvm-3_4plus.png)](http://hhvm.com/)
 [![Latest Stable Version](https://poser.pugx.org/xp-framework/command/version.png)](https://packagist.org/packages/xp-framework/command)
 
 Also known as "xpcli": Command line argument parsing via annotations.
@@ -15,14 +14,14 @@ Example
 -------
 
 ```php
+use util\cmd\Command;
 use rdbms\DriverManager;
-use rdbms\ResultSet;
 use io\streams\Streams;
 
 /**
  * Performs an SQL query
  */
-class Query extends \util\cmd\Command {
+class Query extends Command {
   private $connection, $query;
   private $verbose= false;
 
@@ -31,7 +30,7 @@ class Query extends \util\cmd\Command {
    *
    * @param   string dsn
    */
-  #[@arg(position= 0)]
+  #[@arg(['position' => 0])]
   public function setConnection($dsn) {
     $this->connection= DriverManager::getConnection($dsn);
     $this->connection->connect();
@@ -42,10 +41,10 @@ class Query extends \util\cmd\Command {
    *
    * @param   string query
    */
-  #[@arg(position= 1)]
+  #[@arg(['position' => 1])]
   public function setQuery($query) {
     if ('-' === $query) {
-      $this->query= Streams::readAll($this->in->getStream());
+      $this->query= Streams::readAll($this->in->stream());
     } else {
       $this->query= $query;
     }
