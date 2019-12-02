@@ -34,7 +34,7 @@ class ParamString {
     foreach ($params as $param) {
       $this->list[]= (string)$param;
     }
-    $this->list[-1]= @$_SERVER['_'];
+    $this->list[-1]= getenv('XP_EXE');
     $this->count= sizeof($params);
     $this->string= implode(' ', $params);
   }
