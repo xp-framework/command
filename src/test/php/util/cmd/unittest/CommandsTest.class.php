@@ -1,11 +1,11 @@
 <?php namespace util\cmd\unittest;
 
+use lang\ClassLoader;
+use lang\ClassNotFoundException;
+use lang\IllegalArgumentException;
+use lang\reflect\Package;
 use util\cmd\Command;
 use util\cmd\Commands;
-use lang\reflect\Package;
-use lang\ClassLoader;
-use lang\IllegalArgumentException;
-use lang\ClassNotFoundException;
 
 class CommandsTest extends \unittest\TestCase {
   private static $class, $global;
@@ -65,12 +65,12 @@ class CommandsTest extends \unittest\TestCase {
     Commands::named($name);
   }
 
-  #[@test, @expect(class= IllegalArgumentException::class, withMessage= '/CommandsTest is not runnable/')]
+  #[@test, @expect(['class' => IllegalArgumentException::class, 'withMessage' => '/CommandsTest is not runnable/'])]
   public function name_non_runnable() {
     Commands::named(nameof($this));
   }
 
-  #[@test, @expect(class= IllegalArgumentException::class, withMessage= '/CommandsTest is not runnable/')]
+  #[@test, @expect(['class' => IllegalArgumentException::class, 'withMessage' => '/CommandsTest is not runnable/'])]
   public function file_not_runnable() {
     Commands::named(__FILE__);
   }

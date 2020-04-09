@@ -3,6 +3,11 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 9.0.2 / 2020-04-09
+
+* Implemented RFC #335: Remove deprecated key/value pair annotation syntax
+  (@thekid)
+
 ## 9.0.1 / 2019-12-02
 
 * Made compatible with XP 10 - @thekid
