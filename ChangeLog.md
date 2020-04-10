@@ -3,6 +3,14 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 10.0.0 / 2020-04-10
+
+* Implemented xp-framework/rfc#334: Drop PHP 5.6:
+  . **Heads up:** Minimum required PHP version now is PHP 7.0.0
+  . Rewrote code base, grouping use statements
+  . Rewrote `isset(X) ? X : default` to `X ?? default`
+  (@thekid)
+
 ## 9.0.2 / 2020-04-09
 
 * Implemented RFC #335: Remove deprecated key/value pair annotation syntax
