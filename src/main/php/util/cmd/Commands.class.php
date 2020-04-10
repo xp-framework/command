@@ -1,8 +1,6 @@
 <?php namespace util\cmd;
 
-use lang\ClassLoader;
-use lang\IllegalArgumentException;
-use lang\ClassNotFoundException;
+use lang\{ClassLoader, ClassNotFoundException, IllegalArgumentException};
 use lang\reflect\Package;
 
 /**

@@ -1,7 +1,7 @@
 <?php namespace util\cmd\unittest;
  
-use util\cmd\ParamString;
 use lang\IllegalArgumentException;
+use util\cmd\ParamString;
 
 class ParamStringTest extends \unittest\TestCase {
   

@@ -1,10 +1,8 @@
 <?php namespace util\cmd\unittest;
  
-use util\cmd\Config;
-use util\FilesystemPropertySource;
-use util\ResourcePropertySource;
-use util\PropertyAccess;
 use lang\ElementNotFoundException;
+use util\{FilesystemPropertySource, PropertyAccess, ResourcePropertySource};
+use util\cmd\Config;
 
 class ConfigTest extends \unittest\TestCase {
   

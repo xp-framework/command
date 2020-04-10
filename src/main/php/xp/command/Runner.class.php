@@ -1,13 +1,8 @@
 <?php namespace xp\command;
 
-use lang\ClassLoader;
-use lang\ClassNotFoundException;
-use lang\XPClass;
-use lang\reflect\Modifiers;
-use lang\reflect\Package;
-use util\cmd\Commands;
-use util\cmd\Config;
-use util\cmd\ParamString;
+use lang\{ClassLoader, ClassNotFoundException, XPClass};
+use lang\reflect\{Modifiers, Package};
+use util\cmd\{Commands, Config, ParamString};
 
 /**
  * Runs util.cmd.Command subclasses on the command line.

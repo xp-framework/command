@@ -1,21 +1,9 @@
 <?php namespace xp\command;
 
-use io\streams\ConsoleInputStream;
-use io\streams\ConsoleOutputStream;
-use io\streams\InputStream;
-use io\streams\OutputStream;
-use io\streams\StringReader;
-use io\streams\StringWriter;
-use lang\ClassLoader;
-use lang\ClassNotFoundException;
-use lang\System;
-use lang\Throwable;
-use lang\XPClass;
+use io\streams\{ConsoleInputStream, ConsoleOutputStream, InputStream, OutputStream, StringReader, StringWriter};
+use lang\{ClassLoader, ClassNotFoundException, System, Throwable, XPClass};
 use lang\reflect\TargetInvocationException;
-use util\cmd\Commands;
-use util\cmd\Config;
-use util\cmd\Console;
-use util\cmd\ParamString;
+use util\cmd\{Commands, Config, Console, ParamString};
 use xp\runtime\Help;
 
 /**

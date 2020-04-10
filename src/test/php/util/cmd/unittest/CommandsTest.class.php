@@ -1,11 +1,8 @@
 <?php namespace util\cmd\unittest;
 
-use lang\ClassLoader;
-use lang\ClassNotFoundException;
-use lang\IllegalArgumentException;
+use lang\{ClassLoader, ClassNotFoundException, IllegalArgumentException};
 use lang\reflect\Package;
-use util\cmd\Command;
-use util\cmd\Commands;
+use util\cmd\{Command, Commands};
 
 class CommandsTest extends \unittest\TestCase {
   private static $class, $global;

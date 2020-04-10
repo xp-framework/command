@@ -1,11 +1,7 @@
 <?php namespace util\cmd;
 
-use util\PropertySource;
-use util\FilesystemPropertySource;
-use util\ResourcePropertySource;
-use util\CompositeProperties;
-use util\Objects;
 use lang\ElementNotFoundException;
+use util\{CompositeProperties, FilesystemPropertySource, Objects, PropertySource, ResourcePropertySource};
 
 /**
  * The command line for any command allows specifiy explicit ("-c [source]")

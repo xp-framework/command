@@ -1,14 +1,12 @@
 <?php namespace util\cmd\unittest;
 
-use io\streams\MemoryInputStream;
-use io\streams\MemoryOutputStream;
-use util\cmd\Command;
-use util\cmd\Config;
-use util\cmd\ParamString;
+use io\streams\{MemoryInputStream, MemoryOutputStream};
+use unittest\TestCase;
+use util\cmd\{Command, Config, ParamString};
 use xp\command\CmdRunner;
 new import('lang.ResourceProvider');
 
-abstract class AbstractRunnerTest extends \unittest\TestCase {
+abstract class AbstractRunnerTest extends TestCase {
   protected
     $runner = null,
     $in     = null,

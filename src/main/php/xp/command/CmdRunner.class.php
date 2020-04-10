@@ -1,20 +1,10 @@
 <?php namespace xp\command;
 
-use lang\ClassLoader;
-use lang\ClassNotFoundException;
-use lang\System;
-use lang\Throwable;
-use lang\XPClass;
-use lang\reflect\Modifiers;
-use lang\reflect\Package;
-use lang\reflect\TargetInvocationException;
+use lang\{ClassLoader, ClassNotFoundException, System, Throwable, XPClass};
+use lang\reflect\{Modifiers, Package, TargetInvocationException};
 use rdbms\ConnectionManager;
-use util\Properties;
-use util\PropertyAccess;
-use util\PropertyManager;
-use util\cmd\Commands;
-use util\cmd\Config;
-use util\cmd\ParamString;
+use util\{Properties, PropertyAccess, PropertyManager};
+use util\cmd\{Commands, Config, ParamString};
 use xp\runtime\Help;
 
 /**
