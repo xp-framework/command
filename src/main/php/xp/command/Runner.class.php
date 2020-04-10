@@ -1,7 +1,7 @@
 <?php namespace xp\command;
 
-use lang\{ClassLoader, ClassNotFoundException, XPClass};
 use lang\reflect\{Modifiers, Package};
+use lang\{ClassLoader, ClassNotFoundException, XPClass};
 use util\cmd\{Commands, Config, ParamString};
 
 /**
@@ -92,10 +92,10 @@ class Runner extends AbstractRunner {
         $details['#'.($arg['position'] + 1)]= $comment;
         $positional[$arg['position']]= $name;
       } else if (isset($arg['name'])) {
-        $details['--'.$arg['name'].' | -'.(isset($arg['short']) ? $arg['short'] : $arg['name'][0])]= $comment;
+        $details['--'.$arg['name'].' | -'.($arg['short'] ?? $arg['name'][0])]= $comment;
         $extra[$arg['name']]= $optional;
       } else {
-        $details['--'.$name.' | -'.(isset($arg['short']) ? $arg['short'] : $name[0])]= $comment;
+        $details['--'.$name.' | -'.($arg['short'] ?? $name[0])]= $comment;
         $extra[$name]= $optional;
       }
     }

@@ -1,8 +1,8 @@
 <?php namespace xp\command;
 
 use io\streams\{ConsoleInputStream, ConsoleOutputStream, InputStream, OutputStream, StringReader, StringWriter};
-use lang\{ClassLoader, ClassNotFoundException, System, Throwable, XPClass};
 use lang\reflect\TargetInvocationException;
+use lang\{ClassLoader, ClassNotFoundException, System, Throwable, XPClass};
 use util\cmd\{Commands, Config, Console, ParamString};
 use xp\runtime\Help;
 
@@ -159,10 +159,10 @@ abstract class AbstractRunner {
           $short= null;
         } else if (isset($arg['name'])) {
           $name= $select= $arg['name'];
-          $short= isset($arg['short']) ? $arg['short'] : null;
+          $short= $arg['short'] ?? null;
         } else {
           $name= $select= strtolower(preg_replace('/^set/', '', $method->getName()));
-          $short= isset($arg['short']) ? $arg['short'] : null;
+          $short= $arg['short'] ?? null;
         }
 
         if (0 == $method->numParameters()) {

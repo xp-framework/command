@@ -1,10 +1,10 @@
 <?php namespace xp\command;
 
-use lang\{ClassLoader, ClassNotFoundException, System, Throwable, XPClass};
 use lang\reflect\{Modifiers, Package, TargetInvocationException};
+use lang\{ClassLoader, ClassNotFoundException, System, Throwable, XPClass};
 use rdbms\ConnectionManager;
-use util\{Properties, PropertyAccess, PropertyManager};
 use util\cmd\{Commands, Config, ParamString};
+use util\{Properties, PropertyAccess, PropertyManager};
 use xp\runtime\Help;
 
 /**
@@ -72,10 +72,10 @@ class CmdRunner extends AbstractRunner {
         $details[$name]= [$comment, null];
         $positional[$arg['position']]= $name;
       } else if (isset($arg['name'])) {
-        $details['--'.$arg['name']]= [$comment, isset($arg['short']) ? $arg['short'] : $arg['name'][0]];
+        $details['--'.$arg['name']]= [$comment, $arg['short'] ?? $arg['name'][0]];
         $extra[$arg['name']]= $optional;
       } else {
-        $details['--'.$name]= [$comment, isset($arg['short']) ? $arg['short'] : $name[0]];
+        $details['--'.$name]= [$comment, $arg['short'] ?? $name[0]];
         $extra[$name]= $optional;
       }
     }
