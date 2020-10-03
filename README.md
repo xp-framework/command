@@ -13,7 +13,7 @@ Example
 -------
 
 ```php
-use util\cmd\Command;
+use util\cmd\{Command, Arg};
 use rdbms\DriverManager;
 use io\streams\Streams;
 
@@ -27,9 +27,9 @@ class Query extends Command {
   /**
    * Connection DSN, e.g. `mysql://user:pass@host[:port][/database]`
    *
-   * @param   string dsn
+   * @param  string $dsn
    */
-  #[@arg(['position' => 0])]
+  #[Arg(position: 0)]
   public function setConnection($dsn) {
     $this->connection= DriverManager::getConnection($dsn);
     $this->connection->connect();
@@ -38,9 +38,9 @@ class Query extends Command {
   /**
    * SQL query. Use `-` to read from standard input.
    *
-   * @param   string query
+   * @param  string $query
    */
-  #[@arg(['position' => 1])]
+  #[Arg(position: 1)]
   public function setQuery($query) {
     if ('-' === $query) {
       $this->query= Streams::readAll($this->in->stream());
@@ -52,7 +52,7 @@ class Query extends Command {
   /**
    * Verbose output
    */
-  #[@arg]
+  #[Arg]
   public function setVerbose() {
     $this->verbose= true;
   }

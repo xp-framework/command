@@ -1,7 +1,7 @@
 <?php namespace util\cmd\unittest;
 
 use io\streams\{MemoryInputStream, MemoryOutputStream};
-use unittest\TestCase;
+use unittest\{Arg, Args, Test, TestCase};
 use util\cmd\{Command, Config, ParamString};
 use xp\command\CmdRunner;
 new import('lang.ResourceProvider');
@@ -75,7 +75,7 @@ abstract class AbstractRunnerTest extends TestCase {
     }');
   }
 
-  #[@test]
+  #[Test]
   public function nonExistant() {
     $return= $this->runWith(['@@NONEXISTANT@@']);
     $this->assertEquals(1, $return);
@@ -83,7 +83,7 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertEquals('', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function notRunnableClass() {
     $return= $this->runWith([nameof($this)]);
     $this->assertEquals(1, $return);
@@ -91,7 +91,7 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertEquals('', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function notRunnableFile() {
     $return= $this->runWith([__FILE__]);
     $this->assertEquals(1, $return);
@@ -99,7 +99,7 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertEquals('', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function runCommand() {
     $command= $this->newCommand();
     $return= $this->runWith([nameof($command)]);
@@ -109,7 +109,7 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertTrue($command->wasRun());
   }
 
-  #[@test]
+  #[Test]
   public function runWritingToStandardOutput() {
     $command= newinstance(Command::class, [], [
       'run' => function() { $this->out->write('UNITTEST'); }
@@ -121,7 +121,7 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertEquals('UNITTEST', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function runWritingToStandardError() {
     $command= newinstance(Command::class, [], [
       'run' => function() { $this->err->write('UNITTEST'); }
@@ -133,7 +133,7 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertEquals('', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function runEchoInput() {
     $command= newinstance(Command::class, [], [
       'run' => function() {
@@ -149,12 +149,12 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertEquals('UNITTEST', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function positionalArgument() {
     $command= newinstance(Command::class, [], '{
       private $arg= null;
 
-      #[@arg(["position" => 0])]
+      #[Arg(["position" => 0])]
       public function setArg($arg) { $this->arg= $arg; }
       public function run() { $this->out->write($this->arg); }
     }');
@@ -165,12 +165,12 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertEquals('UNITTEST', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function missingPositionalArgumentt() {
     $command= newinstance(Command::class, [], '{
       private $arg= null;
 
-      #[@arg(["position" => 0])]
+      #[Arg(["position" => 0])]
       public function setArg($arg) { $this->arg= $arg; }
       public function run() { throw new \unittest\AssertionFailedError("Should not be executed"); }
     }');
@@ -181,12 +181,12 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertEquals('', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function shortNamedArgument() {
     $command= newinstance(Command::class, [], '{
       private $arg= null;
 
-      #[@arg]
+      #[Arg]
       public function setArg($arg) { $this->arg= $arg; }
       public function run() { $this->out->write($this->arg); }
     }');
@@ -197,12 +197,12 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertEquals('UNITTEST', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function longNamedArgument() {
     $command= newinstance(Command::class, [], '{
       private $arg= null;
 
-      #[@arg]
+      #[Arg]
       public function setArg($arg) { $this->arg= $arg; }
       public function run() { $this->out->write($this->arg); }
     }');
@@ -213,12 +213,12 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertEquals('UNITTEST', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function shortRenamedArgument() {
     $command= newinstance(Command::class, [], '{
       private $arg= null;
 
-      #[@arg(["name" => "pass"])]
+      #[Arg(["name" => "pass"])]
       public function setArg($arg) { $this->arg= $arg; }
       public function run() { $this->out->write($this->arg); }
     }');
@@ -229,12 +229,12 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertEquals('UNITTEST', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function longRenamedArgument() {
     $command= newinstance(Command::class, [], '{
       private $arg= null;
 
-      #[@arg(["name" => "pass"])]
+      #[Arg(["name" => "pass"])]
       public function setArg($arg) { $this->arg= $arg; }
       public function run() { $this->out->write($this->arg); }
     }');
@@ -245,12 +245,12 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertEquals('UNITTEST', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function missingNamedArgument() {
     $command= newinstance(Command::class, [], '{
       private $arg= null;
 
-      #[@arg]
+      #[Arg]
       public function setArg($arg) { $this->arg= $arg; }
       public function run() { throw new \unittest\AssertionFailedError("Should not be executed"); }
     }');
@@ -261,12 +261,12 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertEquals('', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function existanceArgumentNotPassed() {
     $command= newinstance(Command::class, [], '{
       private $verbose= false;
 
-      #[@arg]
+      #[Arg]
       public function setVerbose() { $this->verbose= true; }
       public function run() { $this->out->write($this->verbose ? "true" : "false"); }
     }');
@@ -277,13 +277,13 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertEquals('false', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function optionalArgument() {
     $command= newinstance(Command::class, [], '{
       private $verbose= false;
       private $name= null;
 
-      #[@arg]
+      #[Arg]
       public function setName($name= "unknown") { $this->name= $name; }
       public function run() { $this->out->write($this->name); }
     }');
@@ -294,13 +294,13 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertEquals('UNITTEST', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function optionalArgumentNotPassed() {
     $command= newinstance(Command::class, [], '{
       private $verbose= false;
       private $name= null;
 
-      #[@arg]
+      #[Arg]
       public function setName($name= "unknown") { $this->name= $name; }
       public function run() { $this->out->write($this->name); }
     }');
@@ -311,12 +311,12 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertEquals('unknown', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function shortExistanceArgumentPassed() {
     $command= newinstance(Command::class, [], '{
       private $verbose= false;
 
-      #[@arg]
+      #[Arg]
       public function setVerbose() { $this->verbose= true; }
       public function run() { $this->out->write($this->verbose ? "true" : "false"); }
     }');
@@ -327,12 +327,12 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertEquals('true', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function longExistanceArgumentPassed() {
     $command= newinstance(Command::class, [], '{
       private $verbose= false;
 
-      #[@arg]
+      #[Arg]
       public function setVerbose() { $this->verbose= true; }
       public function run() { $this->out->write($this->verbose ? "true" : "false"); }
     }');
@@ -343,11 +343,11 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertEquals('true', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function positionalArgumentException() {
     $command= newinstance(Command::class, [], '{
       
-      #[@arg(["position" => 0])]
+      #[Arg(["position" => 0])]
       public function setHost($host) { 
         throw new \lang\IllegalArgumentException("Connecting to ".$host." disallowed by policy");
       }
@@ -361,11 +361,11 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertOnStream($this->err, 'Connecting to insecure.example.com disallowed by policy');
   }
 
-  #[@test]
+  #[Test]
   public function namedArgumentException() {
     $command= newinstance(Command::class, [], '{
       
-      #[@arg]
+      #[Arg]
       public function setHost($host) { 
         throw new \lang\IllegalArgumentException("Connecting to ".$host." disallowed by policy");
       }
@@ -379,96 +379,96 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertOnStream($this->err, 'Connecting to insecure.example.com disallowed by policy');
   }
 
-  #[@test]
+  #[Test]
   public function allArgs() {
     $this->assertAllArgs('a, b, c, d, e, f, g', newinstance(Command::class, [], '{
       private $verbose= false;
       private $args= [];
 
-      #[@args(["select" => "[0..]"])]
+      #[Args(["select" => "[0..]"])]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
   }
 
-  #[@test]
+  #[Test]
   public function allArgsCompactNotation() {
     $this->assertAllArgs('a, b, c, d, e, f, g', newinstance(Command::class, [], '{
       private $verbose= false;
       private $args= [];
 
-      #[@args(["select" => "*"])]
+      #[Args(["select" => "*"])]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
   }
  
-  #[@test]
+  #[Test]
   public function boundedArgs() {
     $this->assertAllArgs('a, b, c', newinstance(Command::class, [], '{
       private $verbose= false;
       private $args= [];
 
-      #[@args(["select" => "[0..2]"])]
+      #[Args(["select" => "[0..2]"])]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
   }
 
-  #[@test]
+  #[Test]
   public function boundedArgsFromOffset() {
     $this->assertAllArgs('c, d, e', newinstance(Command::class, [], '{
       private $verbose= false;
       private $args= [];
 
-      #[@args(["select" => "[2..4]"])]
+      #[Args(["select" => "[2..4]"])]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
   }
 
-  #[@test]
+  #[Test]
   public function positionalAndBoundedArgsFromOffset() {
     $this->assertAllArgs('a, c, d, e', newinstance(Command::class, [], '{
       private $verbose= false;
       private $args= [];
 
-      #[@args(["select" => "0, [2..4]"])]
+      #[Args(["select" => "0, [2..4]"])]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
   }
 
-  #[@test]
+  #[Test]
   public function boundedAndPositionalArgsWithOverlap() {
     $this->assertAllArgs('a, b, c, b', newinstance(Command::class, [], '{
       private $verbose= false;
       private $args= [];
 
-      #[@args(["select" => "[0..2], 1"])]
+      #[Args(["select" => "[0..2], 1"])]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
   }
  
-  #[@test]
+  #[Test]
   public function positionalArgs() {
     $this->assertAllArgs('a, c, e, f', newinstance(Command::class, [], '{
       private $verbose= false;
       private $args= [];
 
-      #[@args(["select" => "0, 2, 4, 5"])]
+      #[Args(["select" => "0, 2, 4, 5"])]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
   }
 
-  #[@test]
+  #[Test]
   public function configOption() {
     $command= newinstance(Command::class, [], '{
       private $choke= false;
 
-      #[@arg]
+      #[Arg]
       public function setChoke() { 
         $this->choke= true; 
       }
@@ -484,7 +484,7 @@ abstract class AbstractRunnerTest extends TestCase {
   }
 
 
-  #[@test]
+  #[Test]
   public function class_with_create() {
     $command= newinstance(Command::class, [], '{
       private $created= "constructor";
@@ -503,7 +503,7 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertEquals('Created via user-supplied creation method', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function config_passed_to_constructor() {
     $command= newinstance(Command::class, [], '{
       private $config= null;
@@ -520,7 +520,7 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertOnStream($this->out, 'Created with util.cmd.Config');
   }
 
-  #[@test]
+  #[Test]
   public function config_passed_to_create() {
     $command= newinstance(Command::class, [], '{
       private $config= null;
@@ -539,11 +539,11 @@ abstract class AbstractRunnerTest extends TestCase {
     $this->assertOnStream($this->out, 'Created with util.cmd.Config');
   }
 
-  #[@test]
+  #[Test]
   public function can_be_invoked_via_main() {
     $command= newinstance(Command::class, [], [
       'arg' => 0,
-      '#[@arg] setArg' => function($arg) { $this->arg= $arg; },
+      '#[Arg] setArg' => function($arg) { $this->arg= $arg; },
       'run' => function() { return $this->arg; }
     ]);
 

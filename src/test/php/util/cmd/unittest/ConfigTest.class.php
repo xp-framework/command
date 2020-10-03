@@ -1,72 +1,73 @@
 <?php namespace util\cmd\unittest;
  
 use lang\ElementNotFoundException;
-use util\{FilesystemPropertySource, PropertyAccess, ResourcePropertySource};
+use unittest\{Expect, Test};
 use util\cmd\Config;
+use util\{FilesystemPropertySource, PropertyAccess, ResourcePropertySource};
 
 class ConfigTest extends \unittest\TestCase {
   
-  #[@test]
+  #[Test]
   public function can_create() {
     new Config();
   }
 
-  #[@test]
+  #[Test]
   public function initially_empty() {
     $this->assertTrue((new Config())->isEmpty());
   }
 
-  #[@test]
+  #[Test]
   public function not_empty_if_created_with_source() {
     $this->assertFalse((new Config('.'))->isEmpty());
   }
 
-  #[@test]
+  #[Test]
   public function not_empty_if_created_with_sources() {
     $this->assertFalse((new Config('.', 'util/cmd/unittest'))->isEmpty());
   }
 
-  #[@test]
+  #[Test]
   public function no_longer_empty_after_appending_source() {
     $config= new Config();
     $config->append('.');
     $this->assertFalse($config->isEmpty());
   }
 
-  #[@test]
+  #[Test]
   public function append_dir() {
     $config= new Config();
     $config->append('.');
     $this->assertEquals([new FilesystemPropertySource('.')], $config->sources());
   }
 
-  #[@test]
+  #[Test]
   public function append_resource() {
     $config= new Config();
     $config->append('live');
     $this->assertEquals([new ResourcePropertySource('live')], $config->sources());
   }
 
-  #[@test]
+  #[Test]
   public function append_resource_with_explicit_res_prefix() {
     $config= new Config();
     $config->append('res://live');
     $this->assertEquals([new ResourcePropertySource('live')], $config->sources());
   }
 
-  #[@test, @expect(ElementNotFoundException::class)]
+  #[Test, Expect(ElementNotFoundException::class)]
   public function properties_raises_exception_when_nothing_found() {
     (new Config())->properties('test');
   }
 
-  #[@test]
+  #[Test]
   public function properties() {
     $config= new Config();
     $config->append('util/cmd/unittest');
     $this->assertEquals('value', $config->properties('debug')->readString('section', 'key'));
   }
 
-  #[@test]
+  #[Test]
   public function composite_properties() {
     $config= new Config();
     $config->append('util/cmd/unittest/add_etc');

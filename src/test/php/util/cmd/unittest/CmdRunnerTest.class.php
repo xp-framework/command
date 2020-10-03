@@ -1,5 +1,6 @@
 <?php namespace util\cmd\unittest;
 
+use unittest\{Test, Values};
 use xp\command\CmdRunner;
 
 class CmdRunnerTest extends AbstractRunnerTest {
@@ -7,7 +8,7 @@ class CmdRunnerTest extends AbstractRunnerTest {
   /** @return xp.command.AbstractRunner */
   protected function runner() { return new CmdRunner(); }
 
-  #[@test, @values([[[]], [['-?']]])]
+  #[Test, Values([[[]], [['-?']]])]
   public function selfUsage($args) {
     $return= $this->runWith($args);
     $this->assertEquals(1, $return);
@@ -15,7 +16,7 @@ class CmdRunnerTest extends AbstractRunnerTest {
     $this->assertEquals('', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function shortClassUsage() {
     $command= $this->newCommand();
     $return= $this->runWith([nameof($command), '-?']);
@@ -25,7 +26,7 @@ class CmdRunnerTest extends AbstractRunnerTest {
     $this->assertFalse($command->wasRun());
   }
 
-  #[@test]
+  #[Test]
   public function longClassUsage() {
     $command= $this->newCommand();
     $return= $this->runWith([nameof($command), '--help']);

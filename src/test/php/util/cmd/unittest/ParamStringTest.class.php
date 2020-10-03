@@ -1,11 +1,12 @@
 <?php namespace util\cmd\unittest;
  
 use lang\IllegalArgumentException;
+use unittest\{Expect, Test};
 use util\cmd\ParamString;
 
 class ParamStringTest extends \unittest\TestCase {
   
-  #[@test]
+  #[Test]
   public function shortFlag() {
     $p= new ParamString(['-k']);
 
@@ -13,7 +14,7 @@ class ParamStringTest extends \unittest\TestCase {
     $this->assertNull($p->value('k'));
   }
 
-  #[@test]
+  #[Test]
   public function shortValue() {
     $p= new ParamString(['-d', 'sql']);
 
@@ -21,7 +22,7 @@ class ParamStringTest extends \unittest\TestCase {
     $this->assertEquals('sql', $p->value('d'));
   }
 
-  #[@test]
+  #[Test]
   public function longFlag() {
     $p= new ParamString(['--verbose']);
 
@@ -29,7 +30,7 @@ class ParamStringTest extends \unittest\TestCase {
     $this->assertNull($p->value('verbose'));
   }
 
-  #[@test]
+  #[Test]
   public function longValue() {
     $p= new ParamString(['--level=3']);
 
@@ -37,7 +38,7 @@ class ParamStringTest extends \unittest\TestCase {
     $this->assertEquals('3', $p->value('level'));
   }
 
-  #[@test]
+  #[Test]
   public function longValueShortGivenDefault() {
     $p= new ParamString(['-l', '3']);
 
@@ -45,7 +46,7 @@ class ParamStringTest extends \unittest\TestCase {
     $this->assertEquals('3', $p->value('level'));
   }
 
-  #[@test]
+  #[Test]
   public function longValueShortGiven() {
     $p= new ParamString(['-L', '3', '-l', 'FAIL']);
 
@@ -53,7 +54,7 @@ class ParamStringTest extends \unittest\TestCase {
     $this->assertEquals('3', $p->value('level', 'L'));
   }
 
-  #[@test]
+  #[Test]
   public function positional() {
     $p= new ParamString(['That is a realm']);
     
@@ -61,7 +62,7 @@ class ParamStringTest extends \unittest\TestCase {
     $this->assertEquals('That is a realm', $p->value(0));
   }
 
-  #[@test]
+  #[Test]
   public function existance() {
     $p= new ParamString(['a', 'b']);
     
@@ -70,12 +71,12 @@ class ParamStringTest extends \unittest\TestCase {
     $this->assertFalse($p->exists(2));
   }
 
-  #[@test, @expect(IllegalArgumentException::class)]
+  #[Test, Expect(IllegalArgumentException::class)]
   public function nonExistantPositional() {
     (new ParamString(['a']))->value(1);
   }
 
-  #[@test]
+  #[Test]
   public function nonExistantPositionalWithDefault() {
     $this->assertEquals(
       'Default', 
@@ -83,12 +84,12 @@ class ParamStringTest extends \unittest\TestCase {
     );
   }
 
-  #[@test, @expect(IllegalArgumentException::class)]
+  #[Test, Expect(IllegalArgumentException::class)]
   public function nonExistantNamed() {
     (new ParamString(['--verbose']))->value('name');
   }
 
-  #[@test]
+  #[Test]
   public function nonExistantNamedWithDefault() {
     $this->assertEquals(
       'Default', 
@@ -96,7 +97,7 @@ class ParamStringTest extends \unittest\TestCase {
     );
   }
   
-  #[@test]
+  #[Test]
   public function whitespaceInParameter() {
     $p= new ParamString(['--realm=That is a realm']);
     

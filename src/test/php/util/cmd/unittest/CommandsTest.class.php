@@ -1,14 +1,15 @@
 <?php namespace util\cmd\unittest;
 
-use lang\{ClassLoader, ClassNotFoundException, IllegalArgumentException};
 use lang\reflect\Package;
+use lang\{ClassLoader, ClassNotFoundException, IllegalArgumentException};
+use unittest\{BeforeClass, Expect, Test, Values};
 use util\cmd\{Command, Commands};
 
 class CommandsTest extends \unittest\TestCase {
   private static $class, $global;
 
   /** @return void */
-  #[@beforeClass]
+  #[BeforeClass]
   public static function defineCommandClass() {
     self::$class= ClassLoader::defineClass('util.cmd.unittest.BatchImport', Command::class, [], [
       'run' => function() { }
@@ -33,51 +34,51 @@ class CommandsTest extends \unittest\TestCase {
     }
   }
 
-  #[@test]
+  #[Test]
   public function packages_initially_empty() {
     $this->assertEquals([], Commands::allPackages());
   }
 
-  #[@test]
+  #[Test]
   public function register_package() {
     self::withPackage('util.cmd.unittest', function($package) {
       $this->assertEquals([Package::forName($package)], Commands::allPackages());
     });
   }
 
-  #[@test, @values(['BatchImport', 'util.cmd.unittest.BatchImport'])]
+  #[Test, Values(['BatchImport', 'util.cmd.unittest.BatchImport'])]
   public function named($name) {
     self::withPackage('util.cmd.unittest', function() use($name) {
       $this->assertEquals(self::$class, Commands::named($name));
     });
   }
 
-  #[@test]
+  #[Test]
   public function unqualified_name_in_global_namespace() {
     $this->assertEquals(self::$global, Commands::named('BatchImport'));
   }
 
-  #[@test, @expect(ClassNotFoundException::class), @values(['class.does.not.Exist', 'DoesNotExist'])]
+  #[Test, Expect(ClassNotFoundException::class), Values(['class.does.not.Exist', 'DoesNotExist'])]
   public function named_non_existant($name) {
     Commands::named($name);
   }
 
-  #[@test, @expect(['class' => IllegalArgumentException::class, 'withMessage' => '/CommandsTest is not runnable/'])]
+  #[Test, Expect(['class' => IllegalArgumentException::class, 'withMessage' => '/CommandsTest is not runnable/'])]
   public function name_non_runnable() {
     Commands::named(nameof($this));
   }
 
-  #[@test, @expect(['class' => IllegalArgumentException::class, 'withMessage' => '/CommandsTest is not runnable/'])]
+  #[Test, Expect(['class' => IllegalArgumentException::class, 'withMessage' => '/CommandsTest is not runnable/'])]
   public function file_not_runnable() {
     Commands::named(__FILE__);
   }
 
-  #[@test]
+  #[Test]
   public function nameOf_qualified() {
     $this->assertEquals('util.cmd.unittest.BatchImport', Commands::nameOf(self::$class));
   }
 
-  #[@test]
+  #[Test]
   public function nameOf_shortened_when_package_is_registered() {
     self::withPackage('util.cmd.unittest', function() {
       $this->assertEquals('BatchImport', Commands::nameOf(self::$class));

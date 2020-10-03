@@ -1,5 +1,6 @@
 <?php namespace util\cmd\unittest;
 
+use unittest\{Arg, Test, Values};
 use util\cmd\Command;
 use xp\command\Runner;
 
@@ -8,7 +9,7 @@ class RunnerTest extends AbstractRunnerTest {
   /** @return xp.command.AbstractRunner */
   protected function runner() { return new Runner(); }
 
-  #[@test, @values([[[]], [['-?']]])]
+  #[Test, Values([[[]], [['-?']]])]
   public function selfUsage($args) {
     $return= $this->runWith($args);
     $this->assertEquals(1, $return);
@@ -16,7 +17,7 @@ class RunnerTest extends AbstractRunnerTest {
     $this->assertEquals('', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function shortClassUsage() {
     $command= $this->newCommand();
     $return= $this->runWith([nameof($command), '-?']);
@@ -26,7 +27,7 @@ class RunnerTest extends AbstractRunnerTest {
     $this->assertFalse($command->wasRun());
   }
 
-  #[@test]
+  #[Test]
   public function longClassUsage() {
     $command= $this->newCommand();
     $return= $this->runWith([nameof($command), '--help']);
@@ -36,12 +37,12 @@ class RunnerTest extends AbstractRunnerTest {
     $this->assertFalse($command->wasRun());
   }
 
-  #[@test]
+  #[Test]
   public function classPathOption() {
     $command= newinstance(Command::class, [], '{
       private $copy= NULL;
       
-      #[@arg(["short" => "cp"])]
+      #[Arg(["short" => "cp"])]
       public function setCopy($copy) { 
         $this->copy= \lang\reflect\Package::forName("net.xp_forge.instructions")->loadClass($copy); 
       }
