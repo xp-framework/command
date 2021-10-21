@@ -3,7 +3,7 @@
 use lang\ElementNotFoundException;
 use unittest\{Expect, Test};
 use util\cmd\Config;
-use util\{FilesystemPropertySource, PropertyAccess, ResourcePropertySource};
+use util\{FilesystemPropertySource, ClassPathPropertySource, PropertyAccess};
 
 class ConfigTest extends \unittest\TestCase {
   
@@ -45,14 +45,7 @@ class ConfigTest extends \unittest\TestCase {
   public function append_resource() {
     $config= new Config();
     $config->append('live');
-    $this->assertEquals([new ResourcePropertySource('live')], $config->sources());
-  }
-
-  #[Test]
-  public function append_resource_with_explicit_res_prefix() {
-    $config= new Config();
-    $config->append('res://live');
-    $this->assertEquals([new ResourcePropertySource('live')], $config->sources());
+    $this->assertEquals([new ClassPathPropertySource('live')], $config->sources());
   }
 
   #[Test, Expect(ElementNotFoundException::class)]

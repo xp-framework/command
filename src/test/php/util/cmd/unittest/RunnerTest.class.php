@@ -14,7 +14,7 @@ class RunnerTest extends AbstractRunnerTest {
     $return= $this->runWith($args);
     $this->assertEquals(1, $return);
     $this->assertOnStream($this->err, '$ xpcli [options]');
-    $this->assertEquals('', $this->out->getBytes());
+    $this->assertEquals('', $this->out->bytes());
   }
 
   #[Test]
@@ -23,7 +23,7 @@ class RunnerTest extends AbstractRunnerTest {
     $return= $this->runWith([nameof($command), '-?']);
     $this->assertEquals(0, $return);
     $this->assertOnStream($this->err, '$ xpcli '.nameof($command));
-    $this->assertEquals('', $this->out->getBytes());
+    $this->assertEquals('', $this->out->bytes());
     $this->assertFalse($command->wasRun());
   }
 
@@ -33,7 +33,7 @@ class RunnerTest extends AbstractRunnerTest {
     $return= $this->runWith([nameof($command), '--help']);
     $this->assertEquals(0, $return);
     $this->assertOnStream($this->err, '$ xpcli '.nameof($command));
-    $this->assertEquals('', $this->out->getBytes());
+    $this->assertEquals('', $this->out->bytes());
     $this->assertFalse($command->wasRun());
   }
 
@@ -57,7 +57,7 @@ class RunnerTest extends AbstractRunnerTest {
       '-cp', 'Copy'
     ]);
     $this->assertEquals(0, $return);
-    $this->assertEquals('', $this->err->getBytes());
-    $this->assertEquals('lang.XPClass<net.xp_forge.instructions.Copy>', $this->out->getBytes());
+    $this->assertEquals('', $this->err->bytes());
+    $this->assertEquals('lang.XPClass<net.xp_forge.instructions.Copy>', $this->out->bytes());
   }
 }

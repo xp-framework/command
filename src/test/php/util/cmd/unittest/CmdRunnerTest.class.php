@@ -13,7 +13,7 @@ class CmdRunnerTest extends AbstractRunnerTest {
     $return= $this->runWith($args);
     $this->assertEquals(1, $return);
     $this->assertOnStream($this->err, 'xp cmd [class]');
-    $this->assertEquals('', $this->out->getBytes());
+    $this->assertEquals('', $this->out->bytes());
   }
 
   #[Test]
@@ -22,7 +22,7 @@ class CmdRunnerTest extends AbstractRunnerTest {
     $return= $this->runWith([nameof($command), '-?']);
     $this->assertEquals(0, $return);
     $this->assertOnStream($this->err, '$ xp cmd '.nameof($command));
-    $this->assertEquals('', $this->out->getBytes());
+    $this->assertEquals('', $this->out->bytes());
     $this->assertFalse($command->wasRun());
   }
 
@@ -32,7 +32,7 @@ class CmdRunnerTest extends AbstractRunnerTest {
     $return= $this->runWith([nameof($command), '--help']);
     $this->assertEquals(0, $return);
     $this->assertOnStream($this->err, '$ xp cmd '.nameof($command));
-    $this->assertEquals('', $this->out->getBytes());
+    $this->assertEquals('', $this->out->bytes());
     $this->assertFalse($command->wasRun());
   }
 }

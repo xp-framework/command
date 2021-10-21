@@ -3,6 +3,11 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 11.0.0 / 2021-10-21
+
+* Implemented xp-framework/rfc#341, dropping compatibility with XP 9
+  (@thekid)
+
 ## 10.0.0 / 2020-04-10
 
 * Implemented xp-framework/rfc#334: Drop PHP 5.6:

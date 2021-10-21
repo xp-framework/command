@@ -1,7 +1,7 @@
 <?php namespace util\cmd;
 
 use lang\ElementNotFoundException;
-use util\{CompositeProperties, FilesystemPropertySource, Objects, PropertySource, ResourcePropertySource};
+use util\{CompositeProperties, FilesystemPropertySource, ClassPathPropertySource, Objects, PropertySource, Properties};
 
 /**
  * The command line for any command allows specifiy explicit ("-c [source]")
@@ -35,10 +35,8 @@ class Config {
       $this->sources[]= $source;
     } else if (is_dir($source)) {
       $this->sources[]= new FilesystemPropertySource($source);
-    } else if (0 === strncmp('res://', $source, 6)) {
-      $this->sources[]= new ResourcePropertySource(substr($source, 6));
     } else {
-      $this->sources[]= new ResourcePropertySource($source);
+      $this->sources[]= new ClassPathPropertySource($source);
     }
   }
 
