@@ -168,8 +168,8 @@ class CmdRunner extends AbstractRunner {
       $command= $args= null;
       sscanf(self::$in->readLine(), "%[^ ] %[^\r]", $command, $args);
       switch ($command) {
-        case null: break;
         case 'exit': return;
+        case null: $exit= 0; break;
         case 'ls':
           foreach (array_merge(Commands::allPackages(), [Package::forName(null)]) as $package) {
             foreach ($package->getClasses() as $class) {
