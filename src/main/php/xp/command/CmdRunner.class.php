@@ -170,7 +170,7 @@ class CmdRunner extends AbstractRunner {
       switch ($command) {
         case null: break;
         case 'exit': return;
-        case 'ls': {
+        case 'ls':
           foreach (array_merge(Commands::allPackages(), [Package::forName(null)]) as $package) {
             foreach ($package->getClasses() as $class) {
               if ($class->isSubclassOf(Command::class) && !Modifiers::isAbstract($class->getModifiers())) {
@@ -185,8 +185,9 @@ class CmdRunner extends AbstractRunner {
           }
           $exit= 0;
           break;
-        }
-        default: {
+
+        // Treat any other input as a command name
+        default:
           try {
             $exit= $this->runCommand($command, ParamString::parse($args), $config);
           } catch (\Throwable $e) {
@@ -194,7 +195,6 @@ class CmdRunner extends AbstractRunner {
             $exit= 255;
           }
           break;
-        }
       }
     } while (true);
   }
