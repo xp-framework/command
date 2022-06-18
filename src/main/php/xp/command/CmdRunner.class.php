@@ -160,7 +160,7 @@ class CmdRunner extends AbstractRunner {
       self::$out->writeLine('Config: ', $source);
     }
 
-    $prompt= getenv('USER').'@'.gethostname();
+    $prompt= ($_ENV['USERNAME'] ?? $_ENV['USER'] ?? posix_getpwuid(posix_geteuid())['name']).'@'.gethostname();
     $exit= 0;
     do {
       self::$out->write("\n\e[", 0 === $exit ? '44' : '41', ";1;37m", $prompt, " cmd \$\e[0m ");
