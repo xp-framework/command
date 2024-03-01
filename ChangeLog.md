@@ -3,6 +3,8 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+* Added PHP 8.2, 8.3 and 8.4 to the test matrix - @thekid
+
 ## 11.0.0 / 2021-10-21
 
 * Implemented xp-framework/rfc#341, dropping compatibility with XP 9

@@ -1,9 +1,9 @@
 <?php namespace xp\command;
 
 use lang\reflect\{Modifiers, Package, TargetInvocationException};
-use lang\{ClassLoader, ClassNotFoundException, System, Throwable, XPClass};
+use lang\{ClassLoader, ClassNotFoundException, Throwable, XPClass};
 use rdbms\ConnectionManager;
-use util\cmd\{Commands, Config, ParamString};
+use util\cmd\{Command, Commands, Config, ParamString};
 use util\{Properties, PropertyAccess, PropertyManager};
 use xp\runtime\Help;
 
@@ -53,8 +53,9 @@ class CmdRunner extends AbstractRunner {
       $markdown= '# '.$class->getSimpleName()."\n\n";
       $text= '';
     } else {
-      @list($headline, $text)= explode("\n", $comment, 2);
-      $markdown= '# '.ltrim($headline, ' #')."\n\n";
+      $p= strcspn($comment, ".\n");
+      $markdown= '# '.ltrim(substr($comment, 0, $p), ' #')."\n\n";
+      $text= substr($comment, $p);
     }
 
     $markdown.= "- Usage\n  ```sh\n$ xp cmd ".Commands::nameOf($class);
@@ -122,7 +123,7 @@ class CmdRunner extends AbstractRunner {
     $commandsIn= function($package) {
       $markdown= '';
       foreach ($package->getClasses() as $class) {
-        if ($class->isSubclassOf('util.cmd.Command') && !Modifiers::isAbstract($class->getModifiers())) {
+        if ($class->isSubclassOf(Command::class) && !Modifiers::isAbstract($class->getModifiers())) {
           $markdown.= '  $ xp cmd '.$class->getSimpleName()."\n";
         }
       }
@@ -144,6 +145,61 @@ class CmdRunner extends AbstractRunner {
   }
 
   /**
+   * Starts repl
+   *
+   * @param  util.cmd.Config $config
+   * @return void
+   */
+  protected function startRepl($config) {
+    foreach (Commands::allPackages() as $package) {
+      self::$out->writeLine("\e[33m@", $package, "\e[0m");
+    }
+    self::$out->writeLine('XP Command REPL. Use "ls" to list commands, "exit" to exit');
+    self::$out->writeLine("\e[36m", str_repeat('═', 72), "\e[0m");
+    foreach ($config->sources() as $source) {
+      self::$out->writeLine('Config: ', $source);
+    }
+
+    $prompt= (getenv('USERNAME') ?: getenv('USER') ?: posix_getpwuid(posix_geteuid())['name']).'@'.gethostname();
+    $exit= 0;
+    do {
+      self::$out->write("\n\e[", 0 === $exit ? '44' : '41', ";1;37m", $prompt, " cmd \$\e[0m ");
+
+      $command= $args= null;
+      sscanf(self::$in->readLine(), "%[^ ] %[^\r]", $command, $args);
+      switch ($command) {
+        case 'exit': return;
+        case null: $exit= 0; break;
+        case 'ls':
+          foreach (array_merge(Commands::allPackages(), [Package::forName(null)]) as $package) {
+            foreach ($package->getClasses() as $class) {
+              if ($class->isSubclassOf(Command::class) && !Modifiers::isAbstract($class->getModifiers())) {
+                self::$out->write("* \e[37m", $class->getSimpleName(), "\e[0m");
+                if ($comment= $class->getComment()) {
+                  self::$out->writeLine(" - \e[3m", substr($comment, 0, strcspn($comment, ".\n")), "\e[0m");
+                } else {
+                  self::$out->writeLine();
+                }
+              }
+            }
+          }
+          $exit= 0;
+          break;
+
+        // Treat any other input as a command name
+        default:
+          try {
+            $exit= $this->runCommand($command, ParamString::parse($args), $config);
+          } catch (\Throwable $e) {
+            self::$err->writeLine(Throwable::wrap($e));
+            $exit= 255;
+          }
+          break;
+      }
+    } while (true);
+  }
+
+  /**
    * Main method
    *
    * @param  util.cmd.ParamString $params
@@ -151,12 +207,6 @@ class CmdRunner extends AbstractRunner {
    * @return int
    */
   public function run(ParamString $params, Config $config= null) {
-
-    // No arguments given - show our own usage
-    if ($params->count < 1) {
-      $this->selfUsage();
-      return 1;
-    }
 
     // Configure properties
     $config || $config= new Config();
@@ -181,10 +231,10 @@ class CmdRunner extends AbstractRunner {
         break 2;
     }
     
-    // Sanity check
+    // Without class: Start REPL
     if (!$params->exists($offset)) {
-      self::$err->writeLine('*** Missing classname');
-      return 1;
+      $this->startRepl($config);
+      return 0;
     }
 
     // Use default path for config if no sources set

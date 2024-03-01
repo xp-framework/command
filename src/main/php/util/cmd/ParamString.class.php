@@ -1,4 +1,6 @@
 <?php namespace util\cmd;
+
+use lang\CommandLine;
  
 /**
  * This class provides helpful functions for commandline applications
@@ -17,12 +19,22 @@ class ParamString {
   /**
    * Constructor
    * 
-   * @param   array list default NULL the argv array. If omitted, $_SERVER['argv'] is used
+   * @param  ?string[] $list If omitted, $_SERVER['argv'] is used
    */
   public function __construct($list= null) {
     $this->setParams(null === $list ? $_SERVER['argv'] : $list);
   }
   
+  /**
+   * Parses a command line using UN*X-style quoting
+   *
+   * @param  ?string $line
+   * @return self
+   */
+  public static function parse($line) {
+    return new self('' === ($line ?? '') ? [] : CommandLine::$UNIX->parse($line));
+  }
+
   /**
    * Set the parameter string
    * 
