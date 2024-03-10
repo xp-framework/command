@@ -2,14 +2,13 @@
 
 use lang\reflect\Package;
 use lang\{ClassLoader, ClassNotFoundException, IllegalArgumentException};
-use unittest\{BeforeClass, Expect, Test, Values};
+use unittest\{Assert, Before, Expect, Test, Values};
 use util\cmd\{Command, Commands};
 
-class CommandsTest extends \unittest\TestCase {
+class CommandsTest {
   private static $class, $global;
 
-  /** @return void */
-  #[BeforeClass]
+  #[Before]
   public static function defineCommandClass() {
     self::$class= ClassLoader::defineClass('util.cmd.unittest.BatchImport', Command::class, [], [
       'run' => function() { }
@@ -36,26 +35,26 @@ class CommandsTest extends \unittest\TestCase {
 
   #[Test]
   public function packages_initially_empty() {
-    $this->assertEquals([], Commands::allPackages());
+    Assert::equals([], Commands::allPackages());
   }
 
   #[Test]
   public function register_package() {
     self::withPackage('util.cmd.unittest', function($package) {
-      $this->assertEquals([Package::forName($package)], Commands::allPackages());
+      Assert::equals([Package::forName($package)], Commands::allPackages());
     });
   }
 
   #[Test, Values(['BatchImport', 'util.cmd.unittest.BatchImport'])]
   public function named($name) {
     self::withPackage('util.cmd.unittest', function() use($name) {
-      $this->assertEquals(self::$class, Commands::named($name));
+      Assert::equals(self::$class, Commands::named($name));
     });
   }
 
   #[Test]
   public function unqualified_name_in_global_namespace() {
-    $this->assertEquals(self::$global, Commands::named('BatchImport'));
+    Assert::equals(self::$global, Commands::named('BatchImport'));
   }
 
   #[Test, Expect(ClassNotFoundException::class), Values(['class.does.not.Exist', 'DoesNotExist'])]
@@ -75,13 +74,13 @@ class CommandsTest extends \unittest\TestCase {
 
   #[Test]
   public function nameOf_qualified() {
-    $this->assertEquals('util.cmd.unittest.BatchImport', Commands::nameOf(self::$class));
+    Assert::equals('util.cmd.unittest.BatchImport', Commands::nameOf(self::$class));
   }
 
   #[Test]
   public function nameOf_shortened_when_package_is_registered() {
     self::withPackage('util.cmd.unittest', function() {
-      $this->assertEquals('BatchImport', Commands::nameOf(self::$class));
+      Assert::equals('BatchImport', Commands::nameOf(self::$class));
     });
   }
 }

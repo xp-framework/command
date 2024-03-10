@@ -1,11 +1,12 @@
 <?php namespace util\cmd\unittest;
- 
+
 use lang\ElementNotFoundException;
+use unittest\Assert;
 use unittest\{Expect, Test};
 use util\cmd\Config;
-use util\{FilesystemPropertySource, ClassPathPropertySource, PropertyAccess};
+use util\{ClassPathPropertySource, FilesystemPropertySource, PropertyAccess};
 
-class ConfigTest extends \unittest\TestCase {
+class ConfigTest {
   
   #[Test]
   public function can_create() {
@@ -14,38 +15,38 @@ class ConfigTest extends \unittest\TestCase {
 
   #[Test]
   public function initially_empty() {
-    $this->assertTrue((new Config())->isEmpty());
+    Assert::true((new Config())->isEmpty());
   }
 
   #[Test]
   public function not_empty_if_created_with_source() {
-    $this->assertFalse((new Config('.'))->isEmpty());
+    Assert::false((new Config('.'))->isEmpty());
   }
 
   #[Test]
   public function not_empty_if_created_with_sources() {
-    $this->assertFalse((new Config('.', 'util/cmd/unittest'))->isEmpty());
+    Assert::false((new Config('.', 'util/cmd/unittest'))->isEmpty());
   }
 
   #[Test]
   public function no_longer_empty_after_appending_source() {
     $config= new Config();
     $config->append('.');
-    $this->assertFalse($config->isEmpty());
+    Assert::false($config->isEmpty());
   }
 
   #[Test]
   public function append_dir() {
     $config= new Config();
     $config->append('.');
-    $this->assertEquals([new FilesystemPropertySource('.')], $config->sources());
+    Assert::equals([new FilesystemPropertySource('.')], $config->sources());
   }
 
   #[Test]
   public function append_resource() {
     $config= new Config();
     $config->append('live');
-    $this->assertEquals([new ClassPathPropertySource('live')], $config->sources());
+    Assert::equals([new ClassPathPropertySource('live')], $config->sources());
   }
 
   #[Test, Expect(ElementNotFoundException::class)]
@@ -57,7 +58,7 @@ class ConfigTest extends \unittest\TestCase {
   public function properties() {
     $config= new Config();
     $config->append('util/cmd/unittest');
-    $this->assertEquals('value', $config->properties('debug')->readString('section', 'key'));
+    Assert::equals('value', $config->properties('debug')->readString('section', 'key'));
   }
 
   #[Test]
@@ -65,6 +66,6 @@ class ConfigTest extends \unittest\TestCase {
     $config= new Config();
     $config->append('util/cmd/unittest/add_etc');
     $config->append('util/cmd/unittest');
-    $this->assertEquals('overwritten_value', $config->properties('debug')->readString('section', 'key'));
+    Assert::equals('overwritten_value', $config->properties('debug')->readString('section', 'key'));
   }
 }

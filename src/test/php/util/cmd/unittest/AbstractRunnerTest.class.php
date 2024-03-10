@@ -1,11 +1,12 @@
 <?php namespace util\cmd\unittest;
 
 use io\streams\{MemoryInputStream, MemoryOutputStream};
+use unittest\Assert;
 use unittest\{Arg, Args, Test, TestCase};
 use util\cmd\{Command, Config, ParamString};
 use xp\command\CmdRunner;
 
-abstract class AbstractRunnerTest extends TestCase {
+abstract class AbstractRunnerTest {
   protected
     $runner = null,
     $in     = null,
@@ -16,6 +17,7 @@ abstract class AbstractRunnerTest extends TestCase {
   protected abstract function runner();
 
   /** @return void */
+  #[Before]
   public function setUp() {
     $this->runner= $this->runner();
   }
@@ -44,9 +46,9 @@ abstract class AbstractRunnerTest extends TestCase {
    */
   protected function assertAllArgs($args, Command $command) {
     $return= $this->runWith([nameof($command), 'a', 'b', 'c', 'd', 'e', 'f', 'g']);
-    $this->assertEquals(0, $return);
-    $this->assertEquals('', $this->err->bytes());
-    $this->assertEquals($args, $this->out->bytes());
+    Assert::equals(0, $return);
+    Assert::equals('', $this->err->bytes());
+    Assert::equals($args, $this->out->bytes());
   }
 
   /**
@@ -77,35 +79,35 @@ abstract class AbstractRunnerTest extends TestCase {
   #[Test]
   public function nonExistant() {
     $return= $this->runWith(['@@NONEXISTANT@@']);
-    $this->assertEquals(1, $return);
+    Assert::equals(1, $return);
     $this->assertOnStream($this->err, '*** Class "@@NONEXISTANT@@" could not be found');
-    $this->assertEquals('', $this->out->bytes());
+    Assert::equals('', $this->out->bytes());
   }
 
   #[Test]
   public function notRunnableClass() {
     $return= $this->runWith([nameof($this)]);
-    $this->assertEquals(1, $return);
+    Assert::equals(1, $return);
     $this->assertOnStream($this->err, '*** '.nameof($this).' is not runnable');
-    $this->assertEquals('', $this->out->bytes());
+    Assert::equals('', $this->out->bytes());
   }
 
   #[Test]
   public function notRunnableFile() {
     $return= $this->runWith([__FILE__]);
-    $this->assertEquals(1, $return);
+    Assert::equals(1, $return);
     $this->assertOnStream($this->err, '*** '.strtr(self::class, '\\', '.').' is not runnable');
-    $this->assertEquals('', $this->out->bytes());
+    Assert::equals('', $this->out->bytes());
   }
 
   #[Test]
   public function runCommand() {
     $command= $this->newCommand();
     $return= $this->runWith([nameof($command)]);
-    $this->assertEquals(0, $return);
-    $this->assertEquals('', $this->err->bytes());
-    $this->assertEquals('', $this->out->bytes());
-    $this->assertTrue($command->wasRun());
+    Assert::equals(0, $return);
+    Assert::equals('', $this->err->bytes());
+    Assert::equals('', $this->out->bytes());
+    Assert::true($command->wasRun());
   }
 
   #[Test]
@@ -115,9 +117,9 @@ abstract class AbstractRunnerTest extends TestCase {
     ]);
 
     $return= $this->runWith([nameof($command)]);
-    $this->assertEquals(0, $return);
-    $this->assertEquals('', $this->err->bytes());
-    $this->assertEquals('UNITTEST', $this->out->bytes());
+    Assert::equals(0, $return);
+    Assert::equals('', $this->err->bytes());
+    Assert::equals('UNITTEST', $this->out->bytes());
   }
 
   #[Test]
@@ -127,9 +129,9 @@ abstract class AbstractRunnerTest extends TestCase {
     ]);
 
     $return= $this->runWith([nameof($command)]);
-    $this->assertEquals(0, $return);
-    $this->assertEquals('UNITTEST', $this->err->bytes());
-    $this->assertEquals('', $this->out->bytes());
+    Assert::equals(0, $return);
+    Assert::equals('UNITTEST', $this->err->bytes());
+    Assert::equals('', $this->out->bytes());
   }
 
   #[Test]
@@ -143,9 +145,9 @@ abstract class AbstractRunnerTest extends TestCase {
     ]);
 
     $return= $this->runWith([nameof($command)], 'UNITTEST');
-    $this->assertEquals(0, $return);
-    $this->assertEquals('', $this->err->bytes());
-    $this->assertEquals('UNITTEST', $this->out->bytes());
+    Assert::equals(0, $return);
+    Assert::equals('', $this->err->bytes());
+    Assert::equals('UNITTEST', $this->out->bytes());
   }
 
   #[Test]
@@ -159,9 +161,9 @@ abstract class AbstractRunnerTest extends TestCase {
     }');
 
     $return= $this->runWith([nameof($command), 'UNITTEST']);
-    $this->assertEquals(0, $return);
-    $this->assertEquals('', $this->err->bytes());
-    $this->assertEquals('UNITTEST', $this->out->bytes());
+    Assert::equals(0, $return);
+    Assert::equals('', $this->err->bytes());
+    Assert::equals('UNITTEST', $this->out->bytes());
   }
 
   #[Test]
@@ -175,9 +177,9 @@ abstract class AbstractRunnerTest extends TestCase {
     }');
 
     $return= $this->runWith([nameof($command)]);
-    $this->assertEquals(2, $return);
+    Assert::equals(2, $return);
     $this->assertOnStream($this->err, '*** Argument #1 does not exist');
-    $this->assertEquals('', $this->out->bytes());
+    Assert::equals('', $this->out->bytes());
   }
 
   #[Test]
@@ -191,9 +193,9 @@ abstract class AbstractRunnerTest extends TestCase {
     }');
 
     $return= $this->runWith([nameof($command), '-a', 'UNITTEST']);
-    $this->assertEquals(0, $return);
-    $this->assertEquals('', $this->err->bytes());
-    $this->assertEquals('UNITTEST', $this->out->bytes());
+    Assert::equals(0, $return);
+    Assert::equals('', $this->err->bytes());
+    Assert::equals('UNITTEST', $this->out->bytes());
   }
 
   #[Test]
@@ -207,9 +209,9 @@ abstract class AbstractRunnerTest extends TestCase {
     }');
 
     $return= $this->runWith([nameof($command), '--arg=UNITTEST']);
-    $this->assertEquals(0, $return);
-    $this->assertEquals('', $this->err->bytes());
-    $this->assertEquals('UNITTEST', $this->out->bytes());
+    Assert::equals(0, $return);
+    Assert::equals('', $this->err->bytes());
+    Assert::equals('UNITTEST', $this->out->bytes());
   }
 
   #[Test]
@@ -223,9 +225,9 @@ abstract class AbstractRunnerTest extends TestCase {
     }');
 
     $return= $this->runWith([nameof($command), '-p', 'UNITTEST']);
-    $this->assertEquals(0, $return);
-    $this->assertEquals('', $this->err->bytes());
-    $this->assertEquals('UNITTEST', $this->out->bytes());
+    Assert::equals(0, $return);
+    Assert::equals('', $this->err->bytes());
+    Assert::equals('UNITTEST', $this->out->bytes());
   }
 
   #[Test]
@@ -239,9 +241,9 @@ abstract class AbstractRunnerTest extends TestCase {
     }');
 
     $return= $this->runWith([nameof($command), '--pass=UNITTEST']);
-    $this->assertEquals(0, $return);
-    $this->assertEquals('', $this->err->bytes());
-    $this->assertEquals('UNITTEST', $this->out->bytes());
+    Assert::equals(0, $return);
+    Assert::equals('', $this->err->bytes());
+    Assert::equals('UNITTEST', $this->out->bytes());
   }
 
   #[Test]
@@ -255,9 +257,9 @@ abstract class AbstractRunnerTest extends TestCase {
     }');
 
     $return= $this->runWith([nameof($command)]);
-    $this->assertEquals(2, $return);
+    Assert::equals(2, $return);
     $this->assertOnStream($this->err, '*** Argument arg does not exist');
-    $this->assertEquals('', $this->out->bytes());
+    Assert::equals('', $this->out->bytes());
   }
 
   #[Test]
@@ -271,9 +273,9 @@ abstract class AbstractRunnerTest extends TestCase {
     }');
 
     $return= $this->runWith([nameof($command)]);
-    $this->assertEquals(0, $return);
-    $this->assertEquals('', $this->err->bytes());
-    $this->assertEquals('false', $this->out->bytes());
+    Assert::equals(0, $return);
+    Assert::equals('', $this->err->bytes());
+    Assert::equals('false', $this->out->bytes());
   }
 
   #[Test]
@@ -288,9 +290,9 @@ abstract class AbstractRunnerTest extends TestCase {
     }');
 
     $return= $this->runWith([nameof($command), '-n', 'UNITTEST']);
-    $this->assertEquals(0, $return);
-    $this->assertEquals('', $this->err->bytes());
-    $this->assertEquals('UNITTEST', $this->out->bytes());
+    Assert::equals(0, $return);
+    Assert::equals('', $this->err->bytes());
+    Assert::equals('UNITTEST', $this->out->bytes());
   }
 
   #[Test]
@@ -305,9 +307,9 @@ abstract class AbstractRunnerTest extends TestCase {
     }');
 
     $return= $this->runWith([nameof($command)]);
-    $this->assertEquals(0, $return);
-    $this->assertEquals('', $this->err->bytes());
-    $this->assertEquals('unknown', $this->out->bytes());
+    Assert::equals(0, $return);
+    Assert::equals('', $this->err->bytes());
+    Assert::equals('unknown', $this->out->bytes());
   }
 
   #[Test]
@@ -321,9 +323,9 @@ abstract class AbstractRunnerTest extends TestCase {
     }');
 
     $return= $this->runWith([nameof($command), '-v']);
-    $this->assertEquals(0, $return);
-    $this->assertEquals('', $this->err->bytes());
-    $this->assertEquals('true', $this->out->bytes());
+    Assert::equals(0, $return);
+    Assert::equals('', $this->err->bytes());
+    Assert::equals('true', $this->out->bytes());
   }
 
   #[Test]
@@ -337,9 +339,9 @@ abstract class AbstractRunnerTest extends TestCase {
     }');
 
     $return= $this->runWith([nameof($command), '--verbose']);
-    $this->assertEquals(0, $return);
-    $this->assertEquals('', $this->err->bytes());
-    $this->assertEquals('true', $this->out->bytes());
+    Assert::equals(0, $return);
+    Assert::equals('', $this->err->bytes());
+    Assert::equals('true', $this->out->bytes());
   }
 
   #[Test]
@@ -477,9 +479,9 @@ abstract class AbstractRunnerTest extends TestCase {
       }
     }');
     $return= $this->runWith(['-c', 'etc', nameof($command), '-c']);
-    $this->assertEquals(0, $return);
-    $this->assertEquals('', $this->err->bytes());
-    $this->assertEquals('true', $this->out->bytes());
+    Assert::equals(0, $return);
+    Assert::equals('', $this->err->bytes());
+    Assert::equals('true', $this->out->bytes());
   }
 
 
@@ -499,7 +501,7 @@ abstract class AbstractRunnerTest extends TestCase {
       }
     }');
     $this->runWith([nameof($command)]);
-    $this->assertEquals('Created via user-supplied creation method', $this->out->bytes());
+    Assert::equals('Created via user-supplied creation method', $this->out->bytes());
   }
 
   #[Test]
@@ -546,6 +548,6 @@ abstract class AbstractRunnerTest extends TestCase {
       'run' => function() { return $this->arg; }
     ]);
 
-    $this->assertEquals(12, $command::main(['-a', 12]));
+    Assert::equals(12, $command::main(['-a', 12]));
   }
 }

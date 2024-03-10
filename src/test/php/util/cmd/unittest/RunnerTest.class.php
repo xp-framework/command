@@ -1,5 +1,6 @@
 <?php namespace util\cmd\unittest;
 
+use unittest\Assert;
 use unittest\{Arg, Test, Values};
 use util\cmd\Command;
 use xp\command\Runner;
@@ -12,29 +13,29 @@ class RunnerTest extends AbstractRunnerTest {
   #[Test, Values([[[]], [['-?']]])]
   public function selfUsage($args) {
     $return= $this->runWith($args);
-    $this->assertEquals(1, $return);
+    Assert::equals(1, $return);
     $this->assertOnStream($this->err, '$ xpcli [options]');
-    $this->assertEquals('', $this->out->bytes());
+    Assert::equals('', $this->out->bytes());
   }
 
   #[Test]
   public function shortClassUsage() {
     $command= $this->newCommand();
     $return= $this->runWith([nameof($command), '-?']);
-    $this->assertEquals(0, $return);
+    Assert::equals(0, $return);
     $this->assertOnStream($this->err, '$ xpcli '.nameof($command));
-    $this->assertEquals('', $this->out->bytes());
-    $this->assertFalse($command->wasRun());
+    Assert::equals('', $this->out->bytes());
+    Assert::false($command->wasRun());
   }
 
   #[Test]
   public function longClassUsage() {
     $command= $this->newCommand();
     $return= $this->runWith([nameof($command), '--help']);
-    $this->assertEquals(0, $return);
+    Assert::equals(0, $return);
     $this->assertOnStream($this->err, '$ xpcli '.nameof($command));
-    $this->assertEquals('', $this->out->bytes());
-    $this->assertFalse($command->wasRun());
+    Assert::equals('', $this->out->bytes());
+    Assert::false($command->wasRun());
   }
 
   #[Test]
@@ -56,8 +57,8 @@ class RunnerTest extends AbstractRunnerTest {
       nameof($command),
       '-cp', 'Copy'
     ]);
-    $this->assertEquals(0, $return);
-    $this->assertEquals('', $this->err->bytes());
-    $this->assertEquals('lang.XPClass<net.xp_forge.instructions.Copy>', $this->out->bytes());
+    Assert::equals(0, $return);
+    Assert::equals('', $this->err->bytes());
+    Assert::equals('lang.XPClass<net.xp_forge.instructions.Copy>', $this->out->bytes());
   }
 }
