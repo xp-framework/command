@@ -1,7 +1,7 @@
 <?php namespace util\cmd\unittest;
 
-use unittest\Assert;
-use unittest\{Test, Values};
+use test\Assert;
+use test\{Test, Values};
 use xp\command\CmdRunner;
 
 class CmdRunnerTest extends AbstractRunnerTest {

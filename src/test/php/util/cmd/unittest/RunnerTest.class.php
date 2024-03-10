@@ -1,7 +1,7 @@
 <?php namespace util\cmd\unittest;
 
-use unittest\Assert;
-use unittest\{Arg, Test, Values};
+use test\Assert;
+use test\{Arg, Test, Values};
 use util\cmd\Command;
 use xp\command\Runner;
 

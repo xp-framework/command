@@ -1,8 +1,7 @@
 <?php namespace util\cmd\unittest;
 
 use io\streams\{MemoryInputStream, MemoryOutputStream};
-use unittest\Assert;
-use unittest\{Arg, Args, Test, TestCase};
+use test\{Assert, Before, Test};
 use util\cmd\{Command, Config, ParamString};
 use xp\command\CmdRunner;
 

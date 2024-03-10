@@ -1,8 +1,8 @@
 <?php namespace util\cmd\unittest;
 
 use lang\IllegalArgumentException;
-use unittest\Assert;
-use unittest\{Expect, Test};
+use test\Assert;
+use test\{Expect, Test};
 use util\cmd\ParamString;
 
 class ParamStringTest {

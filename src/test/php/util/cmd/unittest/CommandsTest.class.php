@@ -2,7 +2,7 @@
 
 use lang\reflect\Package;
 use lang\{ClassLoader, ClassNotFoundException, IllegalArgumentException};
-use unittest\{Assert, Before, Expect, Test, Values};
+use test\{Assert, Before, Expect, Test, Values};
 use util\cmd\{Command, Commands};
 
 class CommandsTest {
@@ -62,12 +62,12 @@ class CommandsTest {
     Commands::named($name);
   }
 
-  #[Test, Expect(['class' => IllegalArgumentException::class, 'withMessage' => '/CommandsTest is not runnable/'])]
+  #[Test, Expect(class: IllegalArgumentException::class, message: '/CommandsTest is not runnable/')]
   public function name_non_runnable() {
     Commands::named(nameof($this));
   }
 
-  #[Test, Expect(['class' => IllegalArgumentException::class, 'withMessage' => '/CommandsTest is not runnable/'])]
+  #[Test, Expect(class: IllegalArgumentException::class, message: '/CommandsTest is not runnable/')]
   public function file_not_runnable() {
     Commands::named(__FILE__);
   }
