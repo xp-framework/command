@@ -3,6 +3,8 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 11.1.0 / 2024-03-10
+
 * Implemented xp-framework/rfc#344: New testing library - @thekid
 * Added PHP 8.2, 8.3 and 8.4 to the test matrix - @thekid
 
