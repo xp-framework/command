@@ -6,11 +6,11 @@
   "description" : "XPCLI",
   "keywords": ["module", "xp"],
   "require" : {
-    "xp-framework/core": "^11.0 | ^10.15",
+    "xp-framework/core": "^12.0 | ^11.0 | ^10.15",
     "php" : ">=7.0.0"
   },
   "require-dev" : {
-    "xp-framework/test": "^1.0"
+    "xp-framework/test": "^2.0 | ^1.0"
   },
   "bin": ["bin/xp.xp-framework.command.cmd"],
   "autoload" : {
