@@ -569,4 +569,18 @@ class CmdRunnerTest {
 
     Assert::equals(12, $command::main(['-a', 12]));
   }
+
+  #[Test]
+  public function argument_name_with_use() {
+    $command= newinstance(Command::class, [], '{
+      private $arg= null;
+
+      #[Arg]
+      public function useArg($arg) { $this->arg= $arg; }
+      public function run() { $this->out->write($this->arg); }
+    }');
+
+    $this->runWith([nameof($command), '-a', 'UNITTEST']);
+    Assert::equals('UNITTEST', $this->out->bytes());
+  }
 }
