@@ -89,7 +89,7 @@ $ xp -m /path/to/rdbms cmd Query 'mysql://localhost/test' 'select * from account
 
 To show the command's usage, supply `-?` or `--help`:
 
-![query-class-usage](https://cloud.githubusercontent.com/assets/696742/12219325/375b43ba-b73f-11e5-9588-d7a122668e3d.png)
+![query-class-usage](https://github.com/xp-framework/command/assets/696742/7ca5d4c8-d17c-4f18-8c3a-7903c7449357)
 
 See also
 --------
