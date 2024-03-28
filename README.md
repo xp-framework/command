@@ -25,24 +25,16 @@ class Query extends Command {
   private $connection, $query;
   private $verbose= false;
 
-  /**
-   * Connection DSN, e.g. `mysql://user:pass@host[:port][/database]`
-   *
-   * @param  string $dsn
-   */
+  /** Connection DSN, e.g. `mysql://user:pass@host[:port][/database]` */
   #[Arg(position: 0)]
-  public function setConnection($dsn) {
+  public function useConnection(string $dsn) {
     $this->connection= DriverManager::getConnection($dsn);
     $this->connection->connect();
   }
 
-  /**
-   * SQL query. Use `-` to read from standard input.
-   *
-   * @param  string $query
-   */
+  /** SQL query. Use `-` to read from standard input */
   #[Arg(position: 1)]
-  public function setQuery($query) {
+  public function useQuery(string $query) {
     if ('-' === $query) {
       $this->query= Streams::readAll($this->in->stream());
     } else {
@@ -50,11 +42,9 @@ class Query extends Command {
     }
   }
 
-  /**
-   * Verbose output
-   */
+  /** Verbose output */
   #[Arg]
-  public function setVerbose() {
+  public function useVerbose() {
     $this->verbose= true;
   }
 
