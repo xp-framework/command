@@ -165,7 +165,7 @@ class CmdRunner {
       $markdown= '';
       foreach ($package->types() as $type) {
         if ($type->is(Command::class) && $type->instantiable()) {
-          $markdown.= '  $ xp cmd '.substr($type->name(), strlen($package->name()) + 1)."\n";
+          $markdown.= '  $ xp cmd '.$type->declaredName()."\n";
         }
       }
       return $markdown ?: '  *(no commands)*';
