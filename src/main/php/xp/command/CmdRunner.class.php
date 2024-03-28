@@ -228,8 +228,8 @@ class CmdRunner {
               $pass[]= $params->value((int)$def);
             } else {
               sscanf($def, '[%d..%d]', $begin, $end);
-              $begin ?? $begin= 0;
-              $end ?? $end= $params->count - 1;
+              $begin ??= 0;
+              $end ??= $params->count - 1;
 
               while ($begin <= $end) {
                 $pass[]= $params->value($begin++);
