@@ -3,6 +3,9 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+* Changed code to use new reflection library, see xp-framework/rfc#338
+  (@thekid)
+
 ## 11.2.0 / 2024-03-24
 
 * Made compatible with XP 12 - @thekid
