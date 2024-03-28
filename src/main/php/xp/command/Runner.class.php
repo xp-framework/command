@@ -1,7 +1,8 @@
 <?php namespace xp\command;
 
 use lang\reflect\{Modifiers, Package};
-use lang\{ClassLoader, ClassNotFoundException, XPClass};
+use lang\reflection\Type;
+use lang\{ClassLoader, ClassNotFoundException, XPClass, Reflection};
 use util\cmd\{Commands, Config, ParamString};
 
 /**
@@ -60,33 +61,26 @@ class Runner extends AbstractRunner {
   }
   
   /**
-   * Show usage
+   * Shows usage
    *
-   * @param  lang.XPClass class
+   * @param  lang.reflection.Type $type
    * @return void
    */
-  protected function commandUsage(XPClass $class) {
+  protected function commandUsage(Type $type) {
 
     // Description
-    if (null !== ($comment= $class->getComment())) {
+    if (null !== ($comment= $type->comment())) {
       self::$err->writeLine(self::textOf($comment));
       self::$err->writeLine(str_repeat('=', 72));
     }
 
     $extra= $details= $positional= [];
-    foreach ($class->getMethods() as $method) {
-      if (!$method->hasAnnotation('arg')) continue;
-
-      $arg= $method->getAnnotation('arg');
-      $name= strtolower(preg_replace('/^set/', '', $method->getName()));;
-      $comment= self::textOf($method->getComment());
-
-      if (0 == $method->numParameters()) {
-        $optional= true;
-      } else {
-        list($first, )= $method->getParameters();
-        $optional= $first->isOptional();
-      }
+    foreach ($type->methods()->annotated(Arg::class) as $method) {
+      $arg= $method->annotation('arg')->arguments();
+      $name= strtolower(preg_replace('/^set/', '', $method->name()));;
+      $first= $method->parameter(0);
+      $optional= $first ? $first->optional() : true;
+      $comment= self::textOf($method->comment());
 
       if (isset($arg['position'])) {
         $details['#'.($arg['position'] + 1)]= $comment;
@@ -102,7 +96,7 @@ class Runner extends AbstractRunner {
 
     // Usage
     asort($positional);
-    self::$err->write('Usage: $ xpcli ', Commands::nameOf($class), ' ');
+    self::$err->write('Usage: $ xpcli ', Commands::nameOf($type->class()), ' ');
     foreach ($positional as $name) {
       self::$err->write('<', $name, '> ');
     }
@@ -124,7 +118,7 @@ class Runner extends AbstractRunner {
    * @return void
    */
   protected function selfUsage() {
-    self::$err->writeLine($this->textOf((new XPClass(__CLASS__))->getComment()));
+    self::$err->writeLine($this->textOf(Reflection::type(self::class)->comment()));
   }
 
   /**

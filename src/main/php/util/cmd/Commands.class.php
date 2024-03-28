@@ -1,7 +1,7 @@
 <?php namespace util\cmd;
 
-use lang\{ClassLoader, ClassNotFoundException, IllegalArgumentException};
 use lang\reflect\Package;
+use lang\{ClassLoader, ClassNotFoundException, IllegalArgumentException};
 
 /**
  * Commands factory. Loads classes, files and named commands by using

@@ -1,9 +1,9 @@
 <?php namespace xp\command;
 
 use io\streams\{ConsoleInputStream, ConsoleOutputStream, InputStream, OutputStream, StringReader, StringWriter};
-use lang\reflect\TargetInvocationException;
-use lang\{ClassLoader, ClassNotFoundException, System, Throwable, XPClass};
-use util\cmd\{Commands, Config, Console, ParamString};
+use lang\reflection\{InvocationFailed, Type};
+use lang\{ClassLoader, ClassNotFoundException, System, Throwable, XPClass, Reflection};
+use util\cmd\{Arg, Args, Commands, Config, Console, ParamString};
 use xp\runtime\Help;
 
 /**
@@ -26,9 +26,10 @@ abstract class AbstractRunner {
   /**
    * Displays usage of command
    *
+   * @param  lang.reflection.Type $type
    * @return void
    */
-  protected abstract function commandUsage(XPClass $class);
+  protected abstract function commandUsage(Type $type);
 
   /**
    * Displays usage of runner
@@ -99,7 +100,7 @@ abstract class AbstractRunner {
    */
   protected function runCommand($command, $params, $config) {
     try {
-      $class= Commands::named($command);
+      $type= Reflection::type(Commands::named($command));
     } catch (Throwable $e) {
       self::$err->writeLine('*** ', $this->verbose ? $e : $e->getMessage());
       return 1;
@@ -107,71 +108,67 @@ abstract class AbstractRunner {
 
     // Usage
     if ($params->exists('help', '?')) {
-      $this->commandUsage($class);
+      $this->commandUsage($type);
       return 0;
     }
 
-    if ($class->hasMethod('newInstance')) {
-      $instance= $class->getMethod('newInstance')->invoke(null, [$config]);
-    } else if ($class->hasConstructor()) {
-      $instance= $class->newInstance($config);
+    if ($method= $type->method('newInstance')) {
+      $instance= $method->invoke(null, [$config]);
     } else {
-      $instance= $class->newInstance();
+      $instance= $type->newInstance($config);
     }
+
     $instance->in= self::$in;
     $instance->out= self::$out;
     $instance->err= self::$err;
     
     // Arguments
-    foreach ($class->getMethods() as $method) {
-      if ($method->hasAnnotation('args')) { // Pass all arguments
-        if (!$method->hasAnnotation('args', 'select')) {
-          $begin= 0;
-          $end= $params->count;
-          $pass= array_slice($params->list, 0, $end);
-        } else {
+    foreach ($type->methods() as $method) {
+      if ($args= $method->annotation(Args::class)) {
+        if ($select= $args->argument('select')) {
           $pass= [];
-          foreach (preg_split('/, ?/', $method->getAnnotation('args', 'select')) as $def) {
-            if (is_numeric($def) || '-' == $def[0]) {
+          foreach (preg_split('/, ?/', $select) as $def) {
+            if (is_numeric($def) || '-' === $def[0]) {
               $pass[]= $params->value((int)$def);
             } else {
               sscanf($def, '[%d..%d]', $begin, $end);
-              isset($begin) || $begin= 0;
-              isset($end) || $end= $params->count- 1;
+              $begin ?? $begin= 0;
+              $end ?? $end= $params->count - 1;
 
               while ($begin <= $end) {
                 $pass[]= $params->value($begin++);
               }
             }
           }
-        }
-        try {
-          $method->invoke($instance, [$pass]);
-        } catch (Throwable $e) {
-          self::$err->writeLine('*** Error for arguments '.$begin.'..'.$end.': ', $this->verbose ? $e : $e->getMessage());
-          return 2;
-        }
-      } else if ($method->hasAnnotation('arg')) {  // Pass arguments
-        $arg= $method->getAnnotation('arg');
-        if (isset($arg['position'])) {
-          $name= '#'.($arg['position']+ 1);
-          $select= intval($arg['position']);
-          $short= null;
-        } else if (isset($arg['name'])) {
-          $name= $select= $arg['name'];
-          $short= $arg['short'] ?? null;
         } else {
-          $name= $select= strtolower(preg_replace('/^set/', '', $method->getName()));
-          $short= $arg['short'] ?? null;
+          $begin= 0;
+          $end= $params->count;
+          $pass= array_slice($params->list, 0, $end);
         }
 
-        if (0 == $method->numParameters()) {
+        try {
+          $method->invoke($instance, [$pass]);
+        } catch (InvocationFailed $e) {
+          self::$err->writeLine("*** Error for arguments {$begin}..{$end}: ", $this->verbose ? $e : $e->getMessage());
+          return 2;
+        }
+      } else if ($arg= $method->annotation(Arg::class)) {
+        if (null !== ($position= $arg->argument('position'))) {
+          $select= (int)$position;
+          $name= '#'.($position + 1);
+          $short= null;
+        } else {
+          $select= $name= $arg->argument('name') ?? strtolower(preg_replace('/^set/', '', $method->name()));
+          $short= $arg->argument('short');
+        }
+
+        $first= $method->parameter(0);
+        if (null === $first) {
           if (!$params->exists($select, $short)) continue;
           $args= [];
         } else if (!$params->exists($select, $short)) {
-          list($first, )= $method->getParameters();
-          if (!$first->isOptional()) {
-            self::$err->writeLine('*** Argument '.$name.' does not exist!');
+          if (!$first->optional()) {
+            self::$err->writeLine("*** Argument {$name} does not exist!");
             return 2;
           }
 
@@ -182,8 +179,8 @@ abstract class AbstractRunner {
 
         try {
           $method->invoke($instance, $args);
-        } catch (TargetInvocationException $e) {
-          self::$err->writeLine('*** Error for argument '.$name.': ', $this->verbose ? $e->getCause() : $e->getCause()->compoundMessage());
+        } catch (InvocationFailed $e) {
+          self::$err->writeLine("*** Error for argument {$name}: ", $this->verbose ? $e->getCause() : $e->getCause()->compoundMessage());
           return 2;
         }
       }

@@ -58,7 +58,7 @@ abstract class AbstractRunnerTest {
    * @throws  unittest.AssertionFailedError
    */
   protected function assertOnStream(MemoryOutputStream $m, $bytes, $message= 'Not contained') {
-    strstr($m->bytes(), $bytes) || $this->fail($message, $m->bytes(), $bytes);
+    strstr($m->bytes(), $bytes) || Assert::false("{$message}: '{$bytes}' in '{$m->bytes()}'");
   }
   
   /**
@@ -154,7 +154,7 @@ abstract class AbstractRunnerTest {
     $command= newinstance(Command::class, [], '{
       private $arg= null;
 
-      #[Arg(["position" => 0])]
+      #[Arg(position: 0)]
       public function setArg($arg) { $this->arg= $arg; }
       public function run() { $this->out->write($this->arg); }
     }');
@@ -170,7 +170,7 @@ abstract class AbstractRunnerTest {
     $command= newinstance(Command::class, [], '{
       private $arg= null;
 
-      #[Arg(["position" => 0])]
+      #[Arg(position: 0)]
       public function setArg($arg) { $this->arg= $arg; }
       public function run() { throw new \unittest\AssertionFailedError("Should not be executed"); }
     }');
@@ -218,7 +218,7 @@ abstract class AbstractRunnerTest {
     $command= newinstance(Command::class, [], '{
       private $arg= null;
 
-      #[Arg(["name" => "pass"])]
+      #[Arg(name: "pass")]
       public function setArg($arg) { $this->arg= $arg; }
       public function run() { $this->out->write($this->arg); }
     }');
@@ -234,7 +234,7 @@ abstract class AbstractRunnerTest {
     $command= newinstance(Command::class, [], '{
       private $arg= null;
 
-      #[Arg(["name" => "pass"])]
+      #[Arg(name: "pass")]
       public function setArg($arg) { $this->arg= $arg; }
       public function run() { $this->out->write($this->arg); }
     }');
@@ -347,7 +347,7 @@ abstract class AbstractRunnerTest {
   public function positionalArgumentException() {
     $command= newinstance(Command::class, [], '{
       
-      #[Arg(["position" => 0])]
+      #[Arg(position: 0)]
       public function setHost($host) { 
         throw new \lang\IllegalArgumentException("Connecting to ".$host." disallowed by policy");
       }
@@ -385,7 +385,7 @@ abstract class AbstractRunnerTest {
       private $verbose= false;
       private $args= [];
 
-      #[Args(["select" => "[0..]"])]
+      #[Args(select: "[0..]")]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
@@ -397,7 +397,7 @@ abstract class AbstractRunnerTest {
       private $verbose= false;
       private $args= [];
 
-      #[Args(["select" => "*"])]
+      #[Args(select: "*")]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
@@ -409,7 +409,7 @@ abstract class AbstractRunnerTest {
       private $verbose= false;
       private $args= [];
 
-      #[Args(["select" => "[0..2]"])]
+      #[Args(select: "[0..2]")]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
@@ -421,7 +421,7 @@ abstract class AbstractRunnerTest {
       private $verbose= false;
       private $args= [];
 
-      #[Args(["select" => "[2..4]"])]
+      #[Args(select: "[2..4]")]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
@@ -433,7 +433,7 @@ abstract class AbstractRunnerTest {
       private $verbose= false;
       private $args= [];
 
-      #[Args(["select" => "0, [2..4]"])]
+      #[Args(select: "0, [2..4]")]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
@@ -445,7 +445,7 @@ abstract class AbstractRunnerTest {
       private $verbose= false;
       private $args= [];
 
-      #[Args(["select" => "[0..2], 1"])]
+      #[Args(select: "[0..2], 1")]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
@@ -457,7 +457,7 @@ abstract class AbstractRunnerTest {
       private $verbose= false;
       private $args= [];
 
-      #[Args(["select" => "0, 2, 4, 5"])]
+      #[Args(select: "0, 2, 4, 5")]
       public function setArgs($args) { $this->args= $args; }
       public function run() { $this->out->write(implode(", ", $this->args)); }
     }'));
