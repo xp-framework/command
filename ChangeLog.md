@@ -5,6 +5,8 @@ Commands ChangeLog
 
 ## 12.0.0 / ????-??-??
 
+* Dropped support for PHP 7.0 - 7.3, step 1 or xp-framework/rfc#343
+  (@thekid)
 * Merged PR #13: Remove `Runner`, fold implementation into `CmdRunner`
   (@thekid)
 * Changed code to use new reflection library, see xp-framework/rfc#338
