@@ -95,9 +95,12 @@ class CmdRunner {
     if ('' === (string)$comment) {
       $markdown= '# '.$type->name()."\n\n";
       $text= '';
+    } else if (false === ($p= strpos($comment, "\n"))) {
+      $markdown= '# '.$comment."\n\n";
+      $text= '';
     } else {
-      @list($headline, $text)= explode("\n", $comment, 2);
-      $markdown= '# '.ltrim($headline, ' #')."\n\n";
+      $markdown= '# '.ltrim(substr($comment, 0, $p), ' #')."\n\n";
+      $text= substr($comment, $p + 1);
     }
 
     $markdown.= "- Usage\n  ```sh\n$ xp cmd ".Commands::nameOf($type->class());
