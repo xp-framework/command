@@ -3,6 +3,10 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 12.0.0 / ????-??-??
+
+* Merged PR #13: Remove `Runner`, fold implementation into `CmdRunner`
+  (@thekid)
 * Changed code to use new reflection library, see xp-framework/rfc#338
   (@thekid)
 
