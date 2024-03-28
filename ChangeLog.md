@@ -5,6 +5,8 @@ Commands ChangeLog
 
 ## 12.0.0 / ????-??-??
 
+* Merged PR #14: Change from `set` to `use` prefix for argument methods
+  (@thekid)
 * Dropped support for PHP 7.0 - 7.3, step 1 or xp-framework/rfc#343
   (@thekid)
 * Merged PR #13: Remove `Runner`, fold implementation into `CmdRunner`
