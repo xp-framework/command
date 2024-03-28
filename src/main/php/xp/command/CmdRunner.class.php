@@ -105,7 +105,7 @@ class CmdRunner {
     $extra= $details= $positional= [];
     foreach ($type->methods()->annotated(Arg::class) as $method) {
       $arg= $method->annotation(Arg::class)->arguments();
-      $name= strtolower(preg_replace('/^set/', '', $method->name()));
+      $name= strtolower(preg_replace('/^(use|set)/', '', $method->name()));
       $first= $method->parameter(0);
       $optional= $first ? $first->optional() : true;
       $comment= $method->comment();
@@ -253,7 +253,7 @@ class CmdRunner {
           $name= '#'.($position + 1);
           $short= null;
         } else {
-          $select= $name= $arg->argument('name') ?? strtolower(preg_replace('/^set/', '', $method->name()));
+          $select= $name= $arg->argument('name') ?? strtolower(preg_replace('/^(use|set)/', '', $method->name()));
           $short= $arg->argument('short');
         }
 
