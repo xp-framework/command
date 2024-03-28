@@ -3,7 +3,7 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
-## 12.0.0 / ????-??-??
+## 12.0.0 / 2024-03-28
 
 * Merged PR #14: Change from `set` to `use` prefix for argument methods
   (@thekid)
