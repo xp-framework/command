@@ -107,7 +107,7 @@ class CmdRunnerTest {
   public function notRunnableClass() {
     $return= $this->runWith([nameof($this)]);
     Assert::equals(1, $return);
-    $this->assertOnStream($this->err, '*** '.nameof($this).' is not runnable');
+    $this->assertOnStream($this->err, '*** '.nameof($this).' is not a command');
     Assert::equals('', $this->out->bytes());
   }
 
@@ -115,7 +115,7 @@ class CmdRunnerTest {
   public function notRunnableFile() {
     $return= $this->runWith([__FILE__]);
     Assert::equals(1, $return);
-    $this->assertOnStream($this->err, '*** '.strtr(self::class, '\\', '.').' is not runnable');
+    $this->assertOnStream($this->err, '*** '.strtr(self::class, '\\', '.').' is not a command');
     Assert::equals('', $this->out->bytes());
   }
 
