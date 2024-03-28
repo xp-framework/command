@@ -1,7 +1,7 @@
 <?php namespace util\cmd;
 
-use lang\{ClassLoader, ClassNotFoundException, IllegalArgumentException};
 use lang\reflect\Package;
+use lang\{ClassLoader, ClassNotFoundException, IllegalArgumentException, Reflection};
 
 /**
  * Commands factory. Loads classes, files and named commands by using
@@ -63,7 +63,7 @@ final class Commands {
    * Find a command by a given name
    *
    * @param  string $name
-   * @return lang.XPClass
+   * @return lang.reflection.Type
    * @throws lang.ClassNotFoundException
    * @throws lang.IllegalArgumentException if class is not runnable
    */
@@ -84,20 +84,21 @@ final class Commands {
       throw new IllegalArgumentException($class->getName().' is not runnable');
     }
 
-    return $class;
+    return Reflection::of($class);
   }
 
   /**
    * Return name of a given class - shortened if inside a registered package
    *
-   * @param  lang.XPClass $class
+   * @param  lang.reflection.Type $type
    * @return string
    */
-  public static function nameOf($class) {
-    if (isset(self::$packages[$class->getPackage()->getName()])) {
-      return $class->getSimpleName();
+  public static function nameOf($type) {
+    if (isset(self::$packages[$type->package()->name()])) {
+      $name= $type->name();
+      return false === ($p= strrpos($name, '.')) ? $name : substr($name, $p + 1);
     } else {
-      return $class->getName();
+      return $type->name();
     }
   }
 }

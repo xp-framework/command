@@ -1,6 +1,7 @@
 <?php namespace xp\command;
 
 use lang\reflect\{Modifiers, Package, TargetInvocationException};
+use lang\reflection\Type;
 use lang\{ClassLoader, ClassNotFoundException, System, Throwable, XPClass};
 use rdbms\ConnectionManager;
 use util\cmd\{Commands, Config, ParamString};
@@ -34,8 +35,8 @@ use xp\runtime\Help;
  *
  * Pass `-v` to see more verbose output from argument handling.
  *
- * @test  xp://util.cmd.unittest.CmdRunnerTest
- * @see   xp://util.cmd.Command
+ * @test  util.cmd.unittest.CmdRunnerTest
+ * @see   util.cmd.Command
  */
 class CmdRunner extends AbstractRunner {
 
@@ -44,29 +45,28 @@ class CmdRunner extends AbstractRunner {
   /**
    * Shows usage
    *
-   * @param  lang.XPClass $class
+   * @param  lang.reflection.Type $type
    * @return void
    */
-  protected function commandUsage(XPClass $class) {
-    $comment= $class->getComment();
+  protected function commandUsage(Type $type) {
+    $comment= $type->comment();
     if ('' === (string)$comment) {
-      $markdown= '# '.$class->getSimpleName()."\n\n";
+      $markdown= '# '.$type->name()."\n\n";
       $text= '';
     } else {
       @list($headline, $text)= explode("\n", $comment, 2);
       $markdown= '# '.ltrim($headline, ' #')."\n\n";
     }
 
-    $markdown.= "- Usage\n  ```sh\n$ xp cmd ".Commands::nameOf($class);
+    $markdown.= "- Usage\n  ```sh\n$ xp cmd ".Commands::nameOf($type);
 
     $extra= $details= $positional= [];
-    foreach ($class->getMethods() as $method) {
-      if (!$method->hasAnnotation('arg')) continue;
-
-      $arg= $method->getAnnotation('arg');
-      $name= strtolower(preg_replace('/^set/', '', $method->getName()));
-      $optional= 0 === $method->numParameters() || $method->getParameters()[0]->isOptional();
-      $comment= $method->getComment();
+    foreach ($type->methods()->annotated(Arg::class) as $method) {
+      $arg= $method->annotation(Arg::class)->arguments();
+      $name= strtolower(preg_replace('/^set/', '', $method->name()));
+      $first= $method->parameter(0);
+      $optional= $first ? $first->optional() : true;
+      $comment= $method->comment();
 
       if (isset($arg['position'])) {
         $details[$name]= [$comment, null];
@@ -100,7 +100,7 @@ class CmdRunner extends AbstractRunner {
       );
     }
 
-    Help::render(self::$err, substr($markdown, 0, -1).$text, $class->getClassLoader());
+    Help::render(self::$err, substr($markdown, 0, -1).$text, $type->classLoader());
   }
 
   /**

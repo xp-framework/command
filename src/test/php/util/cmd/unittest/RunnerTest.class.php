@@ -43,7 +43,7 @@ class RunnerTest extends AbstractRunnerTest {
     $command= newinstance(Command::class, [], '{
       private $copy= NULL;
       
-      #[Arg(["short" => "cp"])]
+      #[Arg(short: "cp")]
       public function setCopy($copy) { 
         $this->copy= \lang\reflect\Package::forName("net.xp_forge.instructions")->loadClass($copy); 
       }

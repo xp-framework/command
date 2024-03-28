@@ -1,7 +1,7 @@
 <?php namespace util\cmd\unittest;
 
 use lang\reflect\Package;
-use lang\{ClassLoader, ClassNotFoundException, IllegalArgumentException};
+use lang\{ClassLoader, ClassNotFoundException, IllegalArgumentException, Reflection};
 use test\{Assert, Before, Expect, Test, Values};
 use util\cmd\{Command, Commands};
 
@@ -48,13 +48,13 @@ class CommandsTest {
   #[Test, Values(['BatchImport', 'util.cmd.unittest.BatchImport'])]
   public function named($name) {
     self::withPackage('util.cmd.unittest', function() use($name) {
-      Assert::equals(self::$class, Commands::named($name));
+      Assert::equals(self::$class, Commands::named($name)->class());
     });
   }
 
   #[Test]
   public function unqualified_name_in_global_namespace() {
-    Assert::equals(self::$global, Commands::named('BatchImport'));
+    Assert::equals(self::$global, Commands::named('BatchImport')->class());
   }
 
   #[Test, Expect(ClassNotFoundException::class), Values(['class.does.not.Exist', 'DoesNotExist'])]
@@ -74,13 +74,13 @@ class CommandsTest {
 
   #[Test]
   public function nameOf_qualified() {
-    Assert::equals('util.cmd.unittest.BatchImport', Commands::nameOf(self::$class));
+    Assert::equals('util.cmd.unittest.BatchImport', Commands::nameOf(Reflection::type(self::$class)));
   }
 
   #[Test]
   public function nameOf_shortened_when_package_is_registered() {
     self::withPackage('util.cmd.unittest', function() {
-      Assert::equals('BatchImport', Commands::nameOf(self::$class));
+      Assert::equals('BatchImport', Commands::nameOf(Reflection::type(self::$class)));
     });
   }
 }
