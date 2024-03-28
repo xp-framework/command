@@ -1,10 +1,9 @@
 <?php namespace xp\command;
 
 use io\streams\{ConsoleInputStream, ConsoleOutputStream, InputStream, OutputStream, StringReader, StringWriter};
-use lang\reflect\{Package, Modifiers};
-use lang\reflection\{InvocationFailed, Type};
+use lang\reflection\{InvocationFailed, Type, Package};
 use lang\{ClassLoader, ClassNotFoundException, Throwable, Reflection};
-use util\cmd\{Arg, Args, Commands, Config, Console, ParamString};
+use util\cmd\{Arg, Args, Command, Commands, Config, Console, ParamString};
 use util\{Properties, PropertyAccess, PropertyManager};
 use xp\runtime\Help;
 
@@ -164,9 +163,9 @@ class CmdRunner {
   protected function listCommands() {
     $commandsIn= function($package) {
       $markdown= '';
-      foreach ($package->getClasses() as $class) {
-        if ($class->isSubclassOf('util.cmd.Command') && !Modifiers::isAbstract($class->getModifiers())) {
-          $markdown.= '  $ xp cmd '.$class->getSimpleName()."\n";
+      foreach ($package->types() as $type) {
+        if ($type->is(Command::class) && $type->instantiable()) {
+          $markdown.= '  $ xp cmd '.substr($type->name(), strlen($package->name()) + 1)."\n";
         }
       }
       return $markdown ?: '  *(no commands)*';
@@ -175,13 +174,13 @@ class CmdRunner {
     $markdown= "# Named commands\n\n";
 
     if ($packages= Commands::allPackages()) {
-      foreach ($packages as $package) {
-        $markdown.= '* In package **'.$package->getName()."**\n\n".$commandsIn($package);
+      foreach ($packages as $name => $package) {
+        $markdown.= '* In package **'.$name."**\n\n".$commandsIn($package);
       }
       $markdown.= "\n";
     }
 
-    $markdown.= "* In global package\n\n".$commandsIn(Package::forName(null));
+    $markdown.= "* In global package\n\n".$commandsIn(new Package());
 
     Help::render(self::$err, $markdown, []);
   }

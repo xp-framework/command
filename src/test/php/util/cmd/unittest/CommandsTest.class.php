@@ -1,6 +1,6 @@
 <?php namespace util\cmd\unittest;
 
-use lang\reflect\Package;
+use lang\reflection\Package;
 use lang\{ClassLoader, ClassNotFoundException, IllegalArgumentException};
 use test\{Assert, Before, Expect, Test, Values};
 use util\cmd\{Command, Commands};
@@ -41,7 +41,7 @@ class CommandsTest {
   #[Test]
   public function register_package() {
     self::withPackage('util.cmd.unittest', function($package) {
-      Assert::equals([Package::forName($package)], Commands::allPackages());
+      Assert::equals([$package => new Package($package)], Commands::allPackages());
     });
   }
 

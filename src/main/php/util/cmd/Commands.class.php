@@ -1,7 +1,7 @@
 <?php namespace util\cmd;
 
-use lang\reflect\Package;
-use lang\{ClassLoader, ClassNotFoundException, IllegalArgumentException};
+use lang\reflection\Package;
+use lang\{ClassLoader, ClassNotFoundException, IllegalArgumentException, Runnable};
 
 /**
  * Commands factory. Loads classes, files and named commands by using
@@ -12,9 +12,7 @@ use lang\{ClassLoader, ClassNotFoundException, IllegalArgumentException};
 final class Commands {
   private static $packages= [];
 
-  /**
-   * Prevent instantiation
-   */
+  /** Prevent instantiation */
   private function __construct() { }
 
   /**
@@ -24,7 +22,7 @@ final class Commands {
    * @return void
    */
   public static function registerPackage($package) {
-    self::$packages[$package]= Package::forName($package);
+    self::$packages[$package]= new Package($package);
   }
 
   /**
@@ -40,21 +38,23 @@ final class Commands {
   /**
    * Gets all registered packages
    *
-   * @return lang.reflect.Package[]
+   * @return [:lang.reflection.Package]
    */
   public static function allPackages() {
-    return array_values(self::$packages);
+    return self::$packages;
   }
 
   /**
    * Locates a named command
    *
+   * @param  lang.IClassLoader $cl
    * @param  string $name
-   * @return lang.reflect.Package or NULL if nothing is found
+   * @return ?string
    */
-  private static function locateNamed($name) {
+  private static function locateNamed($cl, $name) {
     foreach (self::$packages as $package) {
-      if ($package->providesClass($name)) return $package;
+      $class= $package->name().'.'.$name;
+      if ($cl->providesClass($class)) return $class;
     }
     return null;
   }
@@ -71,17 +71,17 @@ final class Commands {
     $cl= ClassLoader::getDefault();
     if (is_file($name)) {
       $class= $cl->loadUri($name);
-    } else if (strstr($name, '.')) {
+    } else if (strpos($name, '.')) {
       $class= $cl->loadClass($name);
-    } else if ($package= self::locateNamed($name)) {
-      $class= $package->loadClass($name);
+    } else if ($named= self::locateNamed($cl, $name)) {
+      $class= $cl->loadClass($named);
     } else {
       $class= $cl->loadClass($name);
     }
 
     // Check whether class is runnable
-    if (!$class->isSubclassOf('lang.Runnable')) {
-      throw new IllegalArgumentException($class->getName().' is not runnable');
+    if (!$class->isSubclassOf(Command::class)) {
+      throw new IllegalArgumentException($class->getName().' is not a command');
     }
 
     return $class;
