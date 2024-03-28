@@ -58,7 +58,7 @@ class CmdRunner extends AbstractRunner {
       $markdown= '# '.ltrim($headline, ' #')."\n\n";
     }
 
-    $markdown.= "- Usage\n  ```sh\n$ xp cmd ".Commands::nameOf($type);
+    $markdown.= "- Usage\n  ```sh\n$ xp cmd ".Commands::nameOf($type->class());
 
     $extra= $details= $positional= [];
     foreach ($type->methods()->annotated(Arg::class) as $method) {

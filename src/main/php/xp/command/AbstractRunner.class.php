@@ -2,7 +2,7 @@
 
 use io\streams\{ConsoleInputStream, ConsoleOutputStream, InputStream, OutputStream, StringReader, StringWriter};
 use lang\reflection\{InvocationFailed, Type};
-use lang\{ClassLoader, ClassNotFoundException, System, Throwable, XPClass};
+use lang\{ClassLoader, ClassNotFoundException, System, Throwable, XPClass, Reflection};
 use util\cmd\{Arg, Args, Commands, Config, Console, ParamString};
 use xp\runtime\Help;
 
@@ -100,7 +100,7 @@ abstract class AbstractRunner {
    */
   protected function runCommand($command, $params, $config) {
     try {
-      $type= Commands::named($command);
+      $type= Reflection::type(Commands::named($command));
     } catch (Throwable $e) {
       self::$err->writeLine('*** ', $this->verbose ? $e : $e->getMessage());
       return 1;
