@@ -5,6 +5,7 @@ Commands ChangeLog
 
 ## 12.0.1 / 2025-05-04
 
+* Added PHP 8.5 to test matrix - @thekid
 * Fix *Implicitly marking parameter $config as nullable is deprecated*
   (@thekid)
 
