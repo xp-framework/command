@@ -3,6 +3,11 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 12.0.1 / 2025-05-04
+
+* Fix *Implicitly marking parameter $config as nullable is deprecated*
+  (@thekid)
+
 ## 12.0.0 / 2024-03-28
 
 * Merged PR #14: Change from `set` to `use` prefix for argument methods

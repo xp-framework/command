@@ -296,10 +296,10 @@ class CmdRunner {
    * Main method
    *
    * @param  util.cmd.ParamString $params
-   * @param  util.cmd.Config $config
+   * @param  ?util.cmd.Config $config
    * @return int
    */
-  public function run(ParamString $params, Config $config= null) {
+  public function run(ParamString $params, ?Config $config= null) {
 
     // No arguments given - show our own usage
     if ($params->count < 1) {
