@@ -18,9 +18,7 @@ use util\cmd\{Command, Arg};
 use rdbms\DriverManager;
 use io\streams\Streams;
 
-/**
- * Performs an SQL query
- */
+/** Performs an SQL query */
 class Query extends Command {
   private $connection, $query;
   private $verbose= false;
