@@ -10,7 +10,7 @@ Commands ChangeLog
   (@thekid)
 * **Heads up:** Dropped support for PHP < 7.4, see xp-framework/rfc#343
   (@thekid)
-* Added PHP 8.5 to test matrix - @thekid
+* Added PHP 8.6 to test matrix - @thekid
 
 ## 12.0.1 / 2025-05-04
 
