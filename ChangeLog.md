@@ -3,6 +3,12 @@ Commands ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 13.0.0 / 2026-09-17
+
+* **Heads up:** Dropped support for PHP < 7.4, see xp-framework/rfc#343
+  (@thekid)
+* Added PHP 8.5 to test matrix - @thekid
+
 ## 12.0.1 / 2025-05-04
 
 * Added PHP 8.5 to test matrix - @thekid
