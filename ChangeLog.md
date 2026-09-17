@@ -5,6 +5,9 @@ Commands ChangeLog
 
 ## 13.0.0 / 2026-09-17
 
+* Refactored `Commands::named()` and `Commands::nameOf()` to use the
+  reflection library instead of working with *XPClass* instances.
+  (@thekid)
 * **Heads up:** Dropped support for PHP < 7.4, see xp-framework/rfc#343
   (@thekid)
 * Added PHP 8.5 to test matrix - @thekid

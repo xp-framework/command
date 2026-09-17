@@ -2,7 +2,7 @@
 
 use io\streams\{ConsoleInputStream, ConsoleOutputStream, InputStream, OutputStream, StringReader, StringWriter};
 use lang\reflection\{InvocationFailed, Type, Package};
-use lang\{ClassLoader, ClassNotFoundException, Throwable, Reflection};
+use lang\{ClassLoader, ClassNotFoundException, Throwable};
 use util\cmd\{Arg, Args, Command, Commands, Config, Console, ParamString};
 use util\{Properties, PropertyAccess, PropertyManager};
 use xp\runtime\Help;
@@ -103,7 +103,7 @@ class CmdRunner {
       $text= substr($comment, $p + 1);
     }
 
-    $markdown.= "- Usage\n  ```sh\n$ xp cmd ".Commands::nameOf($type->class());
+    $markdown.= "- Usage\n  ```sh\n$ xp cmd ".Commands::nameOf($type);
 
     $extra= $details= $positional= [];
     foreach ($type->methods()->annotated(Arg::class) as $method) {
@@ -198,7 +198,7 @@ class CmdRunner {
    */
   protected function runCommand($command, $params, $config) {
     try {
-      $type= Reflection::type(Commands::named($command));
+      $type= Commands::named($command);
     } catch (Throwable $e) {
       self::$err->writeLine('*** ', $this->verbose ? $e : $e->getMessage());
       return 1;

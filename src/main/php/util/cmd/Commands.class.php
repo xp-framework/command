@@ -1,7 +1,7 @@
 <?php namespace util\cmd;
 
-use lang\reflection\Package;
-use lang\{ClassLoader, ClassNotFoundException, IllegalArgumentException, Runnable};
+use lang\reflection\{Package, Type};
+use lang\{ClassLoader, ClassNotFoundException, IllegalArgumentException, Reflection};
 
 /**
  * Commands factory. Loads classes, files and named commands by using
@@ -62,42 +62,34 @@ final class Commands {
   /**
    * Find a command by a given name
    *
-   * @param  string $name
-   * @return lang.XPClass
    * @throws lang.ClassNotFoundException
    * @throws lang.IllegalArgumentException if class is not runnable
    */
-  public static function named($name) {
+  public static function named(string $name): Type {
     $cl= ClassLoader::getDefault();
     if (is_file($name)) {
-      $class= $cl->loadUri($name);
+      $type= Reflection::type($cl->loadUri($name));
     } else if (strpos($name, '.')) {
-      $class= $cl->loadClass($name);
+      $type= Reflection::type($cl->loadClass($name));
     } else if ($named= self::locateNamed($cl, $name)) {
-      $class= $cl->loadClass($named);
+      $type= Reflection::type($cl->loadClass($named));
     } else {
-      $class= $cl->loadClass($name);
+      $type= Reflection::type($cl->loadClass($name));
     }
 
-    // Check whether class is runnable
-    if (!$class->isSubclassOf(Command::class)) {
-      throw new IllegalArgumentException($class->getName().' is not a command');
+    if (!$type->is(Command::class)) {
+      throw new IllegalArgumentException($type->name().' is not a command');
     }
 
-    return $class;
+    return $type;
   }
 
-  /**
-   * Return name of a given class - shortened if inside a registered package
-   *
-   * @param  lang.XPClass $class
-   * @return string
-   */
-  public static function nameOf($class) {
-    if (isset(self::$packages[$class->getPackage()->getName()])) {
-      return $class->getSimpleName();
+  /** Return name of a given class - shortened if inside a registered package */
+  public static function nameOf(Type $type): string {
+    if (isset(self::$packages[$type->package()->name()])) {
+      return $type->declaredName();
     } else {
-      return $class->getName();
+      return $type->name();
     }
   }
 }
